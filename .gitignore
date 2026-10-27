@@ -3,11 +3,11 @@
 __pycache__/
 .env
 .env.local
-.opencode/
-.specify/integration.json
-.specify/integrations/
-.specify/extensions/*/
-.specify/extensions/.registry
-.specify/memory/
-specs/
+# .opencode/
+# .specify/integration.json
+# .specify/integrations/
+# .specify/extensions/*/
+# .specify/extensions/.registry
+# .specify/memory/
+# specs/
 .template-version
