@@ -1,0 +1,105 @@
+name: Update from Template
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+env:
+  TEMPLATE_REPO: wagner-sousa/spec-kit-docker
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get current synced template version
+        id: current
+        run: |
+          if [ -f .template-version ]; then
+            echo "version=$(cat .template-version)" >> $GITHUB_OUTPUT
+          else
+            echo "version=v0.0.0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get latest template release
+        id: latest
+        run: |
+          LATEST=$(git ls-remote --tags --sort=-version:refname "https://github.com/${{ env.TEMPLATE_REPO }}.git" 'v*' 2>/dev/null | sed '/\^{}$/d; s/.*refs\/tags\///' | sed -n '1p')
+          if [ -z "$LATEST" ]; then
+            LATEST="none"
+          fi
+          echo "version=${LATEST}" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          echo "current=${{ steps.current.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "latest=${{ steps.latest.outputs.version }}" >> $GITHUB_OUTPUT
+          if [ "${{ steps.current.outputs.version }}" != "${{ steps.latest.outputs.version }}" ]; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "::notice::New template version available: ${{ steps.latest.outputs.version }} (current: ${{ steps.current.outputs.version }})"
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "::notice::Already on latest version: ${{ steps.current.outputs.version }}"
+          fi
+
+      - name: Fetch and apply template updates
+        if: steps.compare.outputs.needs_update == 'true' && steps.latest.outputs.version != 'none'
+        run: |
+          BRANCH="update/template-${{ steps.latest.outputs.version }}"
+
+          git remote add template "https://github.com/${{ env.TEMPLATE_REPO }}.git" 2>/dev/null || true
+          git fetch template tag ${{ steps.latest.outputs.version }}
+
+          git checkout -b "$BRANCH"
+
+          git checkout FETCH_HEAD -- \
+            Dockerfile \
+            docker-compose.specify.yml \
+            specify \
+            post-create.sh \
+            .specify/ ':!.specify/memory/'
+
+          echo "${{ steps.latest.outputs.version }}" > .template-version
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          if git diff --cached --quiet; then
+            echo "::notice::No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: update template to ${{ steps.latest.outputs.version }}"
+
+      - name: Push branch and create PR
+        if: steps.compare.outputs.needs_update == 'true' && steps.latest.outputs.version != 'none'
+        run: |
+          BRANCH="update/template-${{ steps.latest.outputs.version }}"
+          git push origin "$BRANCH" -f
+
+          gh pr create \
+            --title "Upgrade template to ${{ steps.latest.outputs.version }}" \
+            --body "Automated update from [spec-kit-docker](https://github.com/${{ env.TEMPLATE_REPO }}).
+
+          **Current synced version:** ${{ steps.compare.outputs.current }}
+          **New version:** ${{ steps.compare.outputs.latest }}
+
+          Review the changed files and merge.
+
+          Files updated by this template sync:
+          - \`Dockerfile\`, \`docker-compose.specify.yml\`, \`specify\`, \`post-create.sh\`
+          - \`.specify/\` (extensions, scripts, templates)
+
+          Your customizations in \`README.md\`, \`.specify/memory/constitution.md\`, and \`specs/\` are **not** affected." \
+            --base main \
+            --head "$BRANCH"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

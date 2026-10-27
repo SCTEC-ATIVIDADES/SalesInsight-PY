@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from VERSION file
+        id: version
+        run: echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+      - name: Validate tag matches VERSION
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          FILE_VERSION="${{ steps.version.outputs.version }}"
+          if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+            echo "::error::Tag v${TAG_VERSION} does not match VERSION file (${FILE_VERSION})"
+            exit 1
+          fi
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="${PREV_TAG}..HEAD"
+          else
+            RANGE="HEAD"
+          fi
+
+          {
+            echo "### Features"
+            git log --oneline --no-merges ${RANGE} | grep -E ' feat(\(.+\))?:' || echo "_none_"
+            echo ""
+            echo "### Fixes"
+            git log --oneline --no-merges ${RANGE} | grep -E ' fix(\(.+\))?:' || echo "_none_"
+            echo ""
+            echo "### Other"
+            git log --oneline --no-merges ${RANGE} | grep -vE ' (feat|fix)(\(.+\))?:' || echo "_none_"
+          } > /tmp/changelog.md
+          echo "changes<<EOF" >> $GITHUB_OUTPUT
+          cat /tmp/changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "v${{ steps.version.outputs.version }}"
+          body: |
+            ## Changes
+
+            ${{ steps.changelog.outputs.changes }}
+
+            ## How to update your project
+
+            If you created your project from this template, see [Atualizando seu Projeto](https://github.com/${{ github.repository }}#-atualizando-seu-projeto).
+          generate_release_notes: false

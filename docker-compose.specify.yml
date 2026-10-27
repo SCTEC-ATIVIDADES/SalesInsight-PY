@@ -1,0 +1,13 @@
+services:
+  specify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: specify
+    volumes:
+      - .:/workspace
+    ports:
+      - "8080:8080"
+    working_dir: /workspace
+    environment:
+      - SPECIFY_FEATURE=devcontainer

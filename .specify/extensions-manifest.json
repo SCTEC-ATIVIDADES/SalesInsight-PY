@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "description": "Declarative extension list for this template. Installed on derived projects via install-extensions.sh (thin template: extensions are NOT vendored).",
+  "extensions": [
+    { "id": "agent-context", "source": "catalog", "version": "1.0.2" },
+    { "id": "git", "source": "catalog", "version": "1.0.1" },
+    { "id": "bugfix", "source": "github", "repository": "https://github.com/Quratulain-bilal/spec-kit-bugfix", "ref": "v1.0.0" },
+    { "id": "doctor", "source": "github", "repository": "https://github.com/KhawarHabibKhan/spec-kit-doctor", "ref": "v1.0.0" },
+    { "id": "refine", "source": "github", "repository": "https://github.com/Quratulain-bilal/spec-kit-refine", "ref": "v1.0.0" },
+    { "id": "sync", "source": "github", "repository": "https://github.com/bgervin/spec-kit-sync", "ref": "v0.1.0" },
+    { "id": "verify-tasks", "source": "github", "repository": "https://github.com/datastone-inc/spec-kit-verify-tasks", "ref": "v1.0.0" },
+    { "id": "lifecycle", "source": "github", "repository": "https://github.com/wagner-sousa/spec-kit-lifecycle", "ref": "v1.0.0" },
+    { "id": "switch", "source": "github", "repository": "https://github.com/wagner-sousa/spec-kit-switch", "ref": "v1.0.0" }
+  ]
+}

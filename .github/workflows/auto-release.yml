@@ -1,0 +1,125 @@
+name: Auto Release
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-release
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get last tag and unreleased range
+        id: range
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "last_tag=${LAST_TAG}" >> $GITHUB_OUTPUT
+          if [ -n "$LAST_TAG" ]; then
+            echo "range=${LAST_TAG}..HEAD" >> $GITHUB_OUTPUT
+          else
+            echo "range=HEAD" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get first unreleased commit timestamp
+        id: first
+        run: |
+          RANGE="${{ steps.range.outputs.range }}"
+          FIRST=$(git log --reverse --format="%H %ct" ${RANGE} 2>/dev/null | head -1)
+          if [ -z "$FIRST" ]; then
+            echo "No unreleased commits"
+            echo "found=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "found=true" >> $GITHUB_OUTPUT
+          echo "hash=$(echo $FIRST | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "timestamp=$(echo $FIRST | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - name: Check 24h cooling period
+        id: check
+        if: steps.first.outputs.found == 'true'
+        run: |
+          NOW=$(date +%s)
+          FIRST_TS=${{ steps.first.outputs.timestamp }}
+          ELAPSED=$((NOW - FIRST_TS))
+          if [ $ELAPSED -lt 86400 ]; then
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "::notice::${ELAPSED}s elapsed (need 86400s). Skipping."
+          else
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            echo "::notice::24h+ elapsed - proceeding."
+          fi
+
+      - name: Determine version bump level
+        id: bump
+        if: steps.check.outputs.should_release == 'true'
+        run: |
+          RANGE="${{ steps.range.outputs.range }}"
+          FULL_LOG=$(git log --format="%s %b" ${RANGE})
+          if echo "$FULL_LOG" | grep -qE '(BREAKING CHANGE|!: )'; then
+            LEVEL=major
+          elif echo "$FULL_LOG" | grep -qE '^feat(\(.+\))?:'; then
+            LEVEL=minor
+          else
+            LEVEL=patch
+          fi
+          echo "level=${LEVEL}" >> $GITHUB_OUTPUT
+          echo "::notice::Bump: ${LEVEL}"
+
+      - name: Compute new version
+        id: version
+        if: steps.check.outputs.should_release == 'true'
+        run: |
+          CURRENT=$(cat VERSION)
+          MAJOR=$(echo $CURRENT | cut -d. -f1)
+          MINOR=$(echo $CURRENT | cut -d. -f2)
+          PATCH=$(echo $CURRENT | cut -d. -f3)
+
+          case "${{ steps.bump.outputs.level }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          echo "new=${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_OUTPUT
+          echo "New version: ${MAJOR}.${MINOR}.${PATCH}"
+
+      - name: Generate changelog
+        if: steps.check.outputs.should_release == 'true'
+        run: |
+          RANGE="${{ steps.range.outputs.range }}"
+          {
+            echo "### Features"
+            git log --oneline --no-merges ${RANGE} | grep -E ' feat(\(.+\))?:' || echo "_none_"
+            echo ""
+            echo "### Fixes"
+            git log --oneline --no-merges ${RANGE} | grep -E ' fix(\(.+\))?:' || echo "_none_"
+            echo ""
+            echo "### Other"
+            git log --oneline --no-merges ${RANGE} | grep -vE ' (feat|fix)(\(.+\))?:' || echo "_none_"
+          } > /tmp/changelog.md
+
+      - name: Commit version bump, tag, and release
+        if: steps.check.outputs.should_release == 'true'
+        run: |
+          VERSION="${{ steps.version.outputs.new }}"
+          TAG="v${VERSION}"
+          echo "${VERSION}" > VERSION
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add VERSION
+          git commit -m "release: ${TAG}"
+          git tag "${TAG}"
+          git push origin HEAD:main "${TAG}"
+          gh release create "${TAG}" --title "${TAG}" --notes-file /tmp/changelog.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
