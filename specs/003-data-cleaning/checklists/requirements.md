@@ -1,6 +1,6 @@
 # Specification Quality Checklist: RF03 – Limpar e Tratar os Dados
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Purpose**: Validate specification completeness and quality before proceeding to planning or implementation
 **Created**: 2026-10-29
 **Feature**: [spec.md](../spec.md)
 
@@ -31,6 +31,6 @@
 
 ## Notes
 
-- All 16 validation items reviewed and passed on first iteration.
-- Requirements address numeric conversions and removal, whitespace normalization, valid/removed reporting, input preservation, and empty input.
-- Ready for `/speckit.clarify` or `/speckit.plan`.
+- All 16 validation items reviewed and passed; spec was later refined to define malformed fields, valid dates, finite prices, and reason-count invariants.
+- Requirements address numeric conversions and removal, text/date validation, whitespace normalization, valid/removed reporting, primary reason counts, input preservation, and empty input.
+- Spec refinements completed after the initial review; re-run checklist validation before `/speckit.plan` or implementation.

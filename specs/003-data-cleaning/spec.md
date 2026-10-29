@@ -1,6 +1,6 @@
 # Feature Specification: RF03 – Limpar e Tratar os Dados
 
-**Feature Branch**: `004-data-cleaning`
+**Feature Branch**: `003-data-cleaning`
 
 **Created**: 2026-10-29
 
@@ -45,7 +45,11 @@ Como analista, quero que registros com quantidade ou preço ausente ou inválido
 - Quantidade ou preço contendo somente espaços é considerado vazio após normalização.
 - Valores numéricos que não possam ser convertidos ao tipo requerido tornam o registro inválido; os demais registros continuam a ser processados.
 - A função trabalha sobre os registros de entrada sem alterar os valores da lista original.
-- Campos textuais obrigatórios vazios após remoção dos espaços não são explicitamente definidos como critério de remoção; a validação exigida nesta funcionalidade concentra-se em quantidade e preço.
+- A ausência de qualquer campo do esquema esperado (`id_venda`, `data_venda`, `cliente`, `produto`, `categoria`, `regiao`, `quantidade`, `preco_unitario`) torna a linha malformada e removida, contabilizada uma única vez pelo primeiro motivo detectado na ordem do esquema.
+- Valores nulos ou vazios após remoção dos espaços em campos textuais obrigatórios tornam a linha malformada e removida; datas devem representar datas válidas no formato estabelecido pelo dataset (`YYYY-MM-DD`).
+- Identificador ausente ou não conversível para inteiro torna a linha malformada e removida.
+- Preços não finitos (`NaN`, infinito positivo ou negativo) são inválidos e removidos.
+- A linha removida deve ser contabilizada por um único motivo primário determinístico; totais por motivo devem somar o total de removidos.
 
 ## Requirements *(mandatory)*
 
@@ -53,13 +57,13 @@ Como analista, quero que registros com quantidade ou preço ausente ou inválido
 
 - **FR-001**: O sistema DEVE aceitar uma coleção de registros de venda estruturados como dicionários e produzir uma coleção separada de registros limpos.
 - **FR-002**: O sistema DEVE remover espaços externos dos campos textuais do registro, incluindo cliente, produto, categoria, região e data da venda.
-- **FR-003**: O sistema DEVE remover qualquer registro cuja quantidade ou preço unitário esteja ausente, vazio ou composto somente por espaços.
+- **FR-003**: O sistema DEVE remover qualquer registro cuja quantidade ou preço unitário esteja ausente, vazio ou composto somente por espaços; ausências devem ser contabilizadas em motivo específico distinto de valores presentes, porém inválidos.
 - **FR-004**: O sistema DEVE converter a quantidade de cada registro elegível para número inteiro e o preço unitário para número decimal.
-- **FR-005**: O sistema DEVE remover registros cujos valores de quantidade ou preço unitário não possam ser convertidos aos tipos requeridos, sem interromper o processamento da coleção.
-- **FR-006**: Para registros aceitos, o sistema DEVE preservar os campos da venda e normalizar o identificador para inteiro, conforme o formato esperado do registro limpo.
-- **FR-007**: O sistema DEVE informar no relatório a quantidade de registros válidos e a quantidade removida, e devolver os registros válidos na ordem de entrada.
+- **FR-005**: O sistema DEVE remover registros cujos valores de quantidade ou preço unitário não possam ser convertidos aos tipos requeridos, incluindo preço não finito, com motivo específico distinto para quantidade inválida e preço inválido, sem interromper o processamento da coleção.
+- **FR-006**: Para registros aceitos, o sistema DEVE preservar os campos da venda e normalizar o identificador para inteiro; campos ausentes, identificador não conversível, campos textuais obrigatórios nulos ou vazios após normalização, ou data vazia/inválida após normalização tornam a linha malformada e removida.
+- **FR-007**: O sistema DEVE informar no relatório a quantidade de registros válidos e removidos, com contagens estruturadas por um único motivo primário por linha rejeitada, e devolver os registros válidos na ordem de entrada.
 - **FR-008**: O sistema DEVE deixar a coleção original inalterada durante a limpeza.
-- **FR-009**: Uma coleção vazia DEVE ser processada sem erro e produzir zero registros válidos e zero removidos.
+- **FR-009**: Uma coleção vazia DEVE ser processada sem erro e produzir zero registros válidos, zero removidos e contadores de motivos iguais a zero.
 
 ### Key Entities *(include if data involved)*
 
@@ -75,11 +79,13 @@ Como analista, quero que registros com quantidade ou preço ausente ou inválido
 - **SC-002**: 100% dos registros com quantidade ou preço ausente, vazio ou não conversível são excluídos e incluídos na contagem de removidos.
 - **SC-003**: Em todas as execuções, a soma de registros válidos e removidos é igual ao total de registros de entrada.
 - **SC-004**: A coleção original permanece inalterada após o processamento, inclusive quando registros inválidos são encontrados.
-- **SC-005**: Uma coleção vazia resulta em zero registros válidos e zero removidos, sem falhas.
+- **SC-005**: Uma coleção vazia resulta em zero registros válidos e zero removidos, todos os contadores por motivo em zero, sem falhas.
+- **SC-006**: Para qualquer entrada, a soma dos contadores estruturados por motivo é exatamente igual à quantidade de registros removidos.
 
 ## Assumptions
 
 - A entrada segue o formato de lista de dicionários de vendas estabelecido pelas etapas anteriores do pipeline.
-- O identificador e os demais campos esperados estão presentes em cada linha bem formada; os registros com falhas de conversão de campos numéricos são removidos.
+- O esquema possui os oito campos especificados; qualquer campo ausente, valor nulo em campo textual obrigatório, identificador não conversível ou data vazia após normalização torna a linha malformada e removida.
+- Datas devem ser datas válidas no formato `YYYY-MM-DD`; preços devem ser finitos.
 - A conversão decimal segue as regras numéricas aceitas pelo formato dos dados de entrada; normalização de separadores decimais não está incluída.
 - O relatório é apresentado ao usuário ao término da limpeza, e a função retorna somente a coleção de registros limpos.

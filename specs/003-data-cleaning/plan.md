@@ -1,8 +1,8 @@
 # Implementation Plan: RF03 – Limpar e Tratar os Dados
 
-**Branch**: `004-data-cleaning` | **Date**: 2026-10-29 | **Spec**: [spec.md](./spec.md)
+**Branch**: `003-data-cleaning` | **Date**: 2026-10-29 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `/specs/004-data-cleaning/spec.md`
+**Input**: Feature specification from `/specs/003-data-cleaning/spec.md`
 
 ## Summary
 
@@ -22,9 +22,9 @@ Implementar `limpar_dados` como função reutilizável em `modulo_vendas.py`: cr
 
 **Project Type**: Módulo de processamento de dados em pipeline CLI (`modulo_vendas.py` + `main.py`).
 
-**Performance Goals**: Processar o dataset de escopo (até 10.000 linhas) linearmente em tempo adequado a execução local; o plano não introduz meta de latência nova para esta transformação.
+**Performance Goals**: Processar o dataset de escopo (até 10.000 linhas) linearmente em tempo adequado a execução local; o plano não introduz meta de latência nova para esta transformação. A funcionalidade de limpeza não exige infraestrutura adicional de load testing.
 
-**Constraints**: Lógica explícita com listas, dicionários, laços e condicionais; não mutar entrada; ausência ou invalidade numérica deve rejeitar a linha e manter a execução; campos textuais da linha válida seguem o esquema de venda existente.
+**Constraints**: Lógica explícita com listas, dicionários, laços e condicionais; não mutar entrada; linha malformada ou ausência/invalidade de campos obrigatórios deve ser rejeitada uma única vez e sem interromper o lote; datas seguem formato `YYYY-MM-DD`; preços devem ser finitos.
 
 **Scale/Scope**: Dataset padrão de 100 a 151 linhas e oito campos; mudança circunscrita à limpeza e seus testes, sem alterar leitura ou geração.
 
@@ -37,16 +37,16 @@ Implementar `limpar_dados` como função reutilizável em `modulo_vendas.py`: cr
 | I. Modularização e Separação de Responsabilidades | PASS | PASS | Lógica isolada em `modulo_vendas.py`; `main.py` permanece orquestrador; função com docstring, tipagem de entrada e retorno explícitas. |
 | II. Processamento Explícito e Estruturas Nativas com Pandas | PASS | PASS | Transformação implementável por laço explícito sobre listas e dicionários; sem abstrações opacas nem nova biblioteca. |
 | III. Desenvolvimento Orientado a Testes (TDD) | PASS | PASS | Testes em `tests/test_modulo_vendas.py` devem preceder implementação e cobrir válidos, valores ausentes/brancos/inválidos, contagens, ordem, entrada imutável e lista vazia. |
-| IV. Qualidade, Limpeza e Tratamento Resiliente | PASS | PASS | Ausências e falhas de conversão dos campos numéricos são contabilizadas como rejeições; contadores estruturados por motivo serão retornados conforme constituição, além do relatório solicitado. |
-| V. Ambiente Padronizado e Rastreabilidade | PASS | PASS | Nenhuma dependência externa; execução permanece compatível com `pytest`, Docker e pipeline existente. |
+| IV. Qualidade, Limpeza e Tratamento Resiliente | PASS | PASS | Ausências, valores inválidos e linhas malformadas são rejeitados deterministicamente; relatório imprime contagens estruturadas por motivo, com uma atribuição primária por linha e totais reconciliáveis. |
+| V. Ambiente Padronizado e Rastreabilidade | PASS | BLOCKED (pre-existing project gap) | Nenhuma dependência externa para RF03. Os quality gates obrigatórios estão em T009–T011; o gate end-to-end não pode ser aprovado até que o pipeline existente gere os artefatos `outputs/` localmente e via `docker compose`. |
 
-**Gate Evaluation**: Todos os princípios atendidos; sem violações ou dependências desconhecidas. A constituição exige que rejeições sejam detalhadas por motivo em contador estruturado; será contemplado junto ao relatório agregado do requisito.
+**Gate Evaluation**: A implementação da limpeza atende aos princípios I–IV. O gate V (execução end-to-end e geração dos dois artefatos em `outputs/`, localmente e via Docker Compose) é obrigatório para concluir o projeto, mas está fora do escopo RF03: `main.py` atual ainda só gera/inspeciona dados e não exporta esses artefatos. A tarefa desta feature executa as verificações e registra o bloqueio se a funcionalidade pré-existente ainda não estiver disponível; não declarar o gate V aprovado sem evidência. A função retorna somente a lista limpa; totais e contadores estruturados por motivo são apresentados no relatório impresso.
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/004-data-cleaning/
+specs/003-data-cleaning/
 ├── plan.md
 ├── research.md
 ├── data-model.md

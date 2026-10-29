@@ -1,6 +1,6 @@
 # Tasks: RF03 – Limpar e Tratar os Dados
 
-**Input**: Design documents from `/specs/004-data-cleaning/`
+**Input**: Design documents from `/specs/003-data-cleaning/`
 
 **Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/cleaning-contract.md`
 
@@ -12,7 +12,7 @@
 
 **Purpose**: Confirm the existing project and test setup; no new infrastructure or dependencies are needed.
 
-- [ ] T001 Verify existing Python and pytest setup against `requirements.txt` and `tests/test_modulo_vendas.py`
+- [ ] T001 From the repository root, run `python3 --version` and `python3 -m pytest --version`; confirm Python 3.11+ and pytest are available using `requirements.txt` and `tests/test_modulo_vendas.py` as the project baseline
 
 ---
 
@@ -20,7 +20,7 @@
 
 **Purpose**: No shared infrastructure changes are required; the existing sales schema and module are the foundation.
 
-- [ ] T002 Review the eight-field sales schema in `gerador_dados.py` and existing public-function conventions in `modulo_vendas.py` before adding the cleaning function
+- [ ] T002 Compare `gerador_dados.py` field constants with the input and output schemas in `specs/003-data-cleaning/data-model.md`; confirm all eight field names match before implementing `limpar_dados` in `modulo_vendas.py`
 
 **Checkpoint**: Existing test harness and record schema are understood; story work can begin.
 
@@ -34,11 +34,11 @@
 
 ### Tests for User Story 1
 
-- [ ] T003 [US1] Add failing pytest cases for valid-row text trimming, integer identifier and quantity, float unit price, field preservation, ordering, and input immutability in `tests/test_modulo_vendas.py`
+- [ ] T003 [US1] Add failing pytest cases in `tests/test_modulo_vendas.py` for all eight output fields, trimming of `data_venda`, `cliente`, `produto`, `categoria`, and `regiao`, integer identifier and quantity, float unit price, field preservation, ordering, and input immutability
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Implement `limpar_dados` in `modulo_vendas.py` to construct fresh output dictionaries from valid rows, trim `data_venda`, `cliente`, `produto`, `categoria`, and `regiao`, and convert `id_venda`, `quantidade`, and `preco_unitario` to the types defined in `specs/004-data-cleaning/contracts/cleaning-contract.md`
+- [ ] T004 [US1] Implement `limpar_dados` in `modulo_vendas.py` with an explicit typed signature and concise docstring; construct fresh output dictionaries, trim `data_venda`, `cliente`, `produto`, `categoria`, and `regiao`, and convert `id_venda`, `quantidade`, and `preco_unitario` as defined in `specs/003-data-cleaning/contracts/cleaning-contract.md`
 
 **Checkpoint**: US1 is independently verified when its focused pytest cases pass and input rows remain unchanged.
 
@@ -52,14 +52,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T005 [US2] Add failing pytest cases in `tests/test_modulo_vendas.py` for missing, null, empty, whitespace-only, and non-convertible `quantidade` and `preco_unitario`, non-finite prices, invalid `id_venda`, continued processing, aggregate report output, and additive primary-reason counts
+- [ ] T005 [US2] Add failing pytest cases in `tests/test_modulo_vendas.py` for missing/null schema fields, null text, blank `data_venda`, missing/blank/non-convertible quantity and price, non-finite prices, invalid `id_venda`, continued processing, report output, and exactly one primary reason per rejected row (including distinct categories for missing, invalid quantity, invalid price, malformed text/date, and invalid identifier)
+- [ ] T006 [US2] Add failing pytest cases in `tests/test_modulo_vendas.py` for empty input, zero totals/reason counts, `validos + removidos == entradas`, and `sum(motivos_remocao) == removidos`
 
 ### Implementation for User Story 2
 
-- [ ] T006 [US2] Extend `limpar_dados` in `modulo_vendas.py` to reject rows with absent, blank, or invalid numeric fields (and invalid `id_venda`), attribute each rejected row to one primary reason, and continue the loop after rejection
-- [ ] T007 [US2] Print valid, removed, and structured primary-reason counts from `limpar_dados` in `modulo_vendas.py`, including zero counts for empty input
+- [ ] T007 [US2] Extend `limpar_dados` in `modulo_vendas.py` to reject absent schema fields, null/blank text, blank or invalid `YYYY-MM-DD` dates, invalid identifiers, missing/blank/invalid numeric fields, and non-finite prices; attribute each rejected row once by the documented schema order and continue processing later rows
+- [ ] T008 [US2] Print aggregate valid/removed totals and structured primary-reason counts from `limpar_dados` in `modulo_vendas.py`, including all-zero counters for empty input
 
-**Checkpoint**: US2 is independently verified when all rejection cases are counted once, processing continues, and report totals reconcile to the input size.
+**Checkpoint**: US2 is independently verified when all rejection cases are counted once, processing continues, report totals reconcile to input size, and empty input yields no records and all-zero report counters.
 
 ---
 
@@ -67,8 +68,10 @@
 
 **Purpose**: Verify the integrated cleaning stage and project regression suite.
 
-- [ ] T008 [P] Run focused and complete pytest suites from the repository root using `python -m pytest tests/test_modulo_vendas.py` and `python -m pytest`
-- [ ] T009 [P] Validate the documented cleaning scenarios in `specs/004-data-cleaning/quickstart.md` against the implementation and update the guide only if behavior differs
+- [ ] T009 [P] From the repository root, run `python3 -m pytest tests/test_modulo_vendas.py && python3 -m pytest`; record that both commands exit successfully
+- [ ] T010 From the repository root, run `python3 main.py`; verify successful exit and existence of `outputs/metricas_resumo.csv` and `outputs/estatisticas.json`; if missing, record gate V as blocked by out-of-scope pipeline export functionality and do not mark the gate passed
+- [ ] T011 From the repository root, run `docker compose up --build --exit-code-from app`; verify successful exit and both expected output files under the mounted `outputs/` directory; if missing, record gate V as blocked by out-of-scope pipeline export functionality and do not mark the gate passed
+- [ ] T012 [P] Follow `specs/003-data-cleaning/quickstart.md`; confirm all four manual outcomes (normalized row, invalid-row report, empty list with zero counters, unchanged input) match the documented contract
 
 ---
 
@@ -79,7 +82,7 @@
 - **Setup (Phase 1)**: No dependencies; verifies the existing Python/pytest environment.
 - **Foundational (Phase 2)**: Depends on setup verification; confirms existing schema and module conventions.
 - **User Stories (Phase 3+)**: Begin after the foundation. US1 precedes US2 because US2 extends its cleaning loop and report behavior.
-- **Polish (Phase 5)**: Depends on both stories being implemented.
+- **Polish (Phase 5)**: Depends on both stories being implemented. T009 (tests) can run independently of T010/T011 (entry point quality gates); T012 (quickstart checks) can run independently of all three.
 
 ### User Story Dependencies
 
@@ -95,15 +98,15 @@
 ### Parallel Opportunities
 
 - No safe parallelism within US1 or US2 because tests and implementation touch the same files and are sequential under TDD.
-- After implementation, T008 and T009 can be performed independently; T008 is marked `[P]` because it changes no files and T009 may only edit the quickstart guide.
+- After implementation, T009 and T012 can be performed independently; T009 runs the automated regression suites and T012 checks the documented manual scenarios.
 
 ---
 
 ## Parallel Example: Polish Validation
 
 ```text
-Task: Run focused/full pytest commands from the repository root (T008)
-Task: Validate documented quickstart scenarios against the implementation (T009)
+Task: Run focused/full pytest commands from the repository root (T009)
+Task: Validate documented quickstart scenarios against the implementation (T012)
 ```
 
 ---
