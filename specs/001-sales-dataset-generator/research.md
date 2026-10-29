@@ -42,3 +42,11 @@
 - **Rationale**: Atende integralmente ao Princípio IV da Constituição ("Falhas de I/O (como arquivo inexistente) DEVEM emitir mensagens claras sem interromper abruptamente a execução com rastros não tratados") e aos cenários de borda do RF01.
 - **Alternatives considered**:
   - *Deixar `FileNotFoundError` estourar sem tratamento*: Viola o Princípio IV da Constituição e o Critério de Avaliação nº 04.
+
+## 5. Isolamento de Ambiente Local com `venv` e Complementaridade com Docker
+
+- **Decision**: Adotar ambiente virtual nativo do Python (`python3 -m venv .venv`) como padrão oficial para desenvolvimento e execução local isolada, mantendo o `Dockerfile` e `docker-compose.yml` para execução containerizada e excluindo `.venv/` em `.gitignore` e `.dockerignore` (conforme FR-010).
+- **Rationale**: Evita conflitos com pacotes globais do sistema operacional (PEP 668 / `externally-managed-environment` em distribuições Linux modernas com Python 3.11+), garante que as mesmas versões fixadas em `requirements.txt` sejam utilizadas tanto localmente quanto no container Docker e preserva a limpeza do repositório e do contexto de build.
+- **Alternatives considered**:
+  - *Instalação direta no Python global do sistema (`pip install` sem `venv`)*: Causa conflitos de dependências entre projetos e falha em sistemas com proteção PEP 668.
+  - *Substituir Docker exclusivamente por `venv`*: Violará o Princípio V da Constituição que exige `Dockerfile` e `docker-compose.yml`.

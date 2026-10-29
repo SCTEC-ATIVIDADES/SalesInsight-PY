@@ -18,7 +18,7 @@ Implementar a rotina de criação determinística do dataset de vendas (`vendas.
 
 **Testing**: `pytest` (`tests/test_modulo_vendas.py`) seguindo ciclo Red-Green-Refactor (TDD)
 
-**Target Platform**: Linux / macOS / Windows e container Docker (Python 3.11+)
+**Target Platform**: Linux / macOS / Windows via ambiente virtual isolado (`.venv` com `python3 -m venv .venv`) e container Docker (Python 3.11+)
 
 **Project Type**: CLI / Data Processing Pipeline Module (`gerador_dados.py` + `modulo_vendas.py` + `main.py`)
 
@@ -38,7 +38,7 @@ Implementar a rotina de criação determinística do dataset de vendas (`vendas.
 | **II. Processamento Explícito e Estruturas Nativas com Pandas** | PASS | PASS | Uso explícito de `csv.writer`, `csv.DictReader`, listas, dicionários e laços `for`, mantendo `pandas` nas dependências fixadas do projeto. |
 | **III. Desenvolvimento Orientado a Testes (TDD - INEGOCIÁVEL)** | PASS | PASS | Testes unitários em `tests/test_modulo_vendas.py` escritos antes da implementação cobrindo geração, determinismo por `seed`, ruídos deliberados, leitura e erro de arquivo inexistente. |
 | **IV. Qualidade, Limpeza de Dados e Tratamento Resiliente de Erros** | PASS | PASS | Injeção determinística de nulos, espaços e duplicata para exercitar a limpeza; `carregar_csv` captura `FileNotFoundError`/`OSError` emitindo mensagem clara e retornando `[]`. |
-| **V. Padronização de Ambiente com Docker e Rastreabilidade de Saídas** | PASS | PASS | `requirements.txt` com `pandas`, `pytest` e `Faker` com versões fixadas; compatível com execução local e via Docker Compose. |
+| **V. Padronização de Ambiente com Docker e Rastreabilidade de Saídas** | PASS | PASS | `requirements.txt` com `pandas`, `pytest` e `Faker` com versões fixadas; compatível com execução local isolada via `venv` (`.venv/` ignorado em `.gitignore` e `.dockerignore`) e via Docker Compose. |
 
 **Gate Evaluation**: Todos os 5 princípios constitucionais foram atendidos sem violações.
 
