@@ -136,7 +136,7 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 ### Within Each User Story (Mandatory TDD Order)
 
 1. Write unit tests in `tests/test_modulo_vendas.py` and confirm they **FAIL** (Red)
-2. Implement functions in `modulo_vendas.py` / `main.py` to make tests **PASS** (Green)
+2. Implement functions in `gerador_dados.py` / `modulo_vendas.py` / `main.py` to make tests **PASS** (Green)
 3. Refactor for clarity, docstrings, and explicit typing while keeping tests green (Refactor)
 
 ### Parallel Opportunities

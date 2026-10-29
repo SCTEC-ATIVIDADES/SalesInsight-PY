@@ -22,7 +22,7 @@ Representa cada linha do arquivo `vendas.csv` gerada por `gerar_dataset_sintetic
 
 ---
 
-### 1.2. `CatalogoReferenciaVendas` (Constantes de Domínio)
+### 1.2. `CatalogoReferenciaVendas` (Constantes de Domínio em `gerador_dados.py`, reexportadas em `modulo_vendas.py`)
 
 Mapeamento estático que governa a coerência entre produtos, categorias e regiões na geração do dataset:
 
