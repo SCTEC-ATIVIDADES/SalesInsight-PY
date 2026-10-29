@@ -55,7 +55,7 @@ Como analista de vendas, quero conhecer a receita total da empresa no conjunto a
 
 - Uma coleção vazia resulta em total geral igual a zero e agregados vazios.
 - Uma única venda gera totais iguais à sua receita para categoria, região e total geral.
-- Valores acumulados são arredondados a duas casas decimais nos agregados e no total geral.
+- Totais por categoria e região são arredondados a duas casas após cada adição; total geral é somado sem arredondamento intermediário e arredondado ao final.
 - Cada registro de entrada possui `categoria`, `regiao` e `receita_total` válidos, produzidos pelas etapas anteriores.
 
 ## Requirements *(mandatory)*
@@ -67,6 +67,7 @@ Como analista de vendas, quero conhecer a receita total da empresa no conjunto a
 - **FR-003**: O sistema deve calcular a receita geral de todas as vendas.
 - **FR-004**: Os totais por categoria, por região e o total geral devem ser apresentados arredondados a duas casas decimais.
 - **FR-005**: O cálculo deve processar cada registro válido uma única vez e retornar os resultados separados por total geral, categoria e região.
+- **FR-006**: O pipeline deve incluir as métricas agregadas nos arquivos de saída existentes.
 
 ### Key Entities
 
@@ -87,4 +88,4 @@ Como analista de vendas, quero conhecer a receita total da empresa no conjunto a
 - A entrada contém registros limpos com `categoria`, `regiao` e `receita_total` numérica e finita.
 - Os valores de `receita_total` já foram calculados e arredondados na etapa anterior.
 - Categorias e regiões são agrupadas pelos valores recebidos, sem normalização adicional.
-- O resultado contém total geral, totais por categoria e totais por região; apresentação ou exportação dessas métricas está fora do escopo desta funcionalidade.
+- O resultado contém total geral, totais por categoria e totais por região; métricas são adicionadas aos arquivos existentes sem alterar seu formato.
