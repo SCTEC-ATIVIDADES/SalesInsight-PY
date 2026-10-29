@@ -135,3 +135,162 @@ def test_gerar_dataset_cria_diretorio_pai_automaticamente(tmp_path: Path) -> Non
     assert len(dados) == 11
 
 
+def test_inspecionar_dados_exibe_panorama_e_estrutura_inicial(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    dados: list[dict[str, str | None]] = [
+        {
+            "id_venda": "1",
+            "data_venda": "2024-01-10",
+            "cliente": "Ana Silva",
+            "produto": "Notebook",
+            "categoria": "Eletrônicos",
+            "regiao": "Sudeste",
+            "quantidade": "2",
+            "preco_unitario": "3200.00",
+        },
+        {
+            "id_venda": "2",
+            "data_venda": "2024-01-11",
+            "cliente": "Bruno Souza",
+            "produto": "Mouse",
+            "categoria": "Acessórios",
+            "regiao": "Sul",
+            "quantidade": "1",
+            "preco_unitario": "120.50",
+        },
+    ]
+
+    resumo = mv.inspecionar_dados(dados)
+    capturado = capsys.readouterr()
+
+    assert "\n=== INSPEÇÃO INICIAL DOS DADOS ===" in capturado.out
+    assert "Total de registros carregados: 2" in capturado.out
+    assert (
+        "Campos disponíveis: ['id_venda', 'data_venda', 'cliente', 'produto', 'categoria', 'regiao', 'quantidade', 'preco_unitario']"
+        in capturado.out
+    )
+    assert f"Exemplo do primeiro registro: {dados[0]}" in capturado.out
+    assert resumo["total_registros"] == 2
+    assert resumo["campos"] == gd.CABECALHO_VENDAS
+    assert resumo["primeiro_registro"] == dados[0]
+
+
+def test_inspecionar_dados_contabiliza_linhas_incompletas_e_nulos_por_campo(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    dados: list[dict[str, str | None]] = [
+        {
+            "id_venda": "1",
+            "data_venda": "2024-01-10",
+            "cliente": "Ana Silva",
+            "produto": "Notebook",
+            "categoria": "Eletrônicos",
+            "regiao": "Sudeste",
+            "quantidade": "2",
+            "preco_unitario": "3200.00",
+        },
+        {
+            "id_venda": "2",
+            "data_venda": "2024-01-11",
+            "cliente": "Bruno Souza",
+            "produto": "Mouse",
+            "categoria": "Acessórios",
+            "regiao": "Sul",
+            "quantidade": "",
+            "preco_unitario": "120.50",
+        },
+        {
+            "id_venda": "3",
+            "data_venda": "2024-01-12",
+            "cliente": "   ",
+            "produto": "Teclado",
+            "categoria": "Acessórios",
+            "regiao": "Norte",
+            "quantidade": "1",
+            "preco_unitario": None,
+        },
+    ]
+
+    resumo = mv.inspecionar_dados(dados)
+    capturado = capsys.readouterr()
+
+    assert resumo["total_registros"] == 3
+    assert resumo["registros_incompletos"] == 2
+    assert 0 <= resumo["registros_incompletos"] <= resumo["total_registros"]
+    assert resumo["nulos_por_campo"] == {
+        "id_venda": 0,
+        "data_venda": 0,
+        "cliente": 1,
+        "produto": 0,
+        "categoria": 0,
+        "regiao": 0,
+        "quantidade": 1,
+        "preco_unitario": 1,
+    }
+    for contagem in resumo["nulos_por_campo"].values():
+        assert 0 <= contagem <= resumo["total_registros"]
+    assert "Registros com dados incompletos ou nulos: 2" in capturado.out
+    assert (
+        f"Valores nulos/vazios por campo: {resumo['nulos_por_campo']}"
+        in capturado.out
+    )
+
+
+def test_inspecionar_dados_preserva_imutabilidade_da_entrada() -> None:
+    dados_com_ruido: list[dict[str, str | None]] = [
+        {
+            "id_venda": "1",
+            "data_venda": "2024-01-10",
+            "cliente": "Ana Silva",
+            "produto": "  Notebook ",
+            "categoria": "Eletrônicos",
+            "regiao": "Sudeste",
+            "quantidade": "",
+            "preco_unitario": "   ",
+        }
+    ]
+    copia_original = [dict(linha) for linha in dados_com_ruido]
+
+    resumo_ruido = mv.inspecionar_dados(dados_com_ruido)
+    assert dados_com_ruido == copia_original
+    assert resumo_ruido["registros_incompletos"] == 1
+
+    dados_completos: list[dict[str, str | None]] = [
+        {
+            "id_venda": "10",
+            "data_venda": "2024-02-01",
+            "cliente": "Carlos Lima",
+            "produto": "  Monitor ",
+            "categoria": "Eletrônicos",
+            "regiao": "Nordeste",
+            "quantidade": "1",
+            "preco_unitario": "999.90",
+        }
+    ]
+    resumo_completo = mv.inspecionar_dados(dados_completos)
+    assert resumo_completo["registros_incompletos"] == 0
+    assert all(v == 0 for v in resumo_completo["nulos_por_campo"].values())
+
+
+def test_inspecionar_dados_lista_vazia_executa_sem_erro(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    resumo = mv.inspecionar_dados([])
+    capturado = capsys.readouterr()
+
+    assert "\n=== INSPEÇÃO INICIAL DOS DADOS ===" in capturado.out
+    assert "Total de registros carregados: 0" in capturado.out
+    assert "Registros com dados incompletos ou nulos: 0" in capturado.out
+    assert "Campos disponíveis:" not in capturado.out
+    assert "Exemplo do primeiro registro:" not in capturado.out
+    assert resumo == {
+        "total_registros": 0,
+        "campos": [],
+        "primeiro_registro": None,
+        "registros_incompletos": 0,
+        "nulos_por_campo": {},
+    }
+
+
+

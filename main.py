@@ -14,3 +14,5 @@ if __name__ == "__main__":
 
     dados_brutos = mv.carregar_csv(arquivo_dados)
     print(f"[INFO] Registros brutos carregados: {len(dados_brutos)}")
+    mv.inspecionar_dados(dados_brutos)
+
