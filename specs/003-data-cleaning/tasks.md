@@ -138,3 +138,8 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 
 - [X] T013 Implement and integrate the complete `main.py` pipeline with `limpar_dados` and `exportar_resultados` in `modulo_vendas.py`; generate `outputs/metricas_resumo.csv` and `outputs/estatisticas.json` to satisfy Constitution V and unblock T010–T011 (CRITICAL; Constitution V; missing)
 - [X] T014 Install project dependencies from `requirements.txt` in the existing local `.venv` and run `.venv/bin/python main.py`; verify successful local execution and both output artifacts per T010. System-wide pip install was avoided due to PEP 668 (HIGH; T010; partial)
+
+## Phase 7: Convergence
+
+- [ ] T015 Define and implement deterministic duplicate-row handling in `limpar_dados` in `modulo_vendas.py`, with tests covering duplicate criteria and reason accounting, or document an explicit scope decision that RF03 preserves duplicates (MEDIUM; Constitution IV; partial)
+- [ ] T016 Update the Constitution Check in `specs/003-data-cleaning/plan.md` and completed quality-gate task notes in `specs/003-data-cleaning/tasks.md` to record that local and Docker runs produced both required output files (LOW; plan: Constitution Check V; partial)
