@@ -151,3 +151,7 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 ## Phase 9: Convergence
 
 - [X] T018 Correct the stale duplicate-preservation statement in `specs/003-data-cleaning/plan.md` Constitution Check and Gate Evaluation to match FR-007/FR-008, Constitution IV, and the implemented exact-duplicate rejection behavior (plan: Constitution Check IV)
+
+## Phase 10: Convergence
+
+- [ ] T019 Use the required `pandas` dependency in a meaningful, explicit part of the RF03 cleaning pipeline in `modulo_vendas.py`, retaining the mandated clear list/dictionary iteration and validating that behavior in `tests/test_modulo_vendas.py` (CRITICAL; Constitution II; contradicts)
