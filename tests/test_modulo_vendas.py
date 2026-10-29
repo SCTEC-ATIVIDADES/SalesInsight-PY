@@ -1,7 +1,10 @@
 import csv
 from datetime import datetime
 from pathlib import Path
+import sys
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import gerador_dados as gd
 import modulo_vendas as mv

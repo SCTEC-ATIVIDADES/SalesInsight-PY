@@ -8,8 +8,8 @@ Project: SalesInsight-PY
 | Category | Count |
 |----------|-------|
 | Specs Analyzed | 1 |
-| Requirements Checked | 14 (9 FR + 5 SC) |
-| ✓ Aligned | 14 (100%) |
+| Requirements Checked | 15 (10 FR + 5 SC) |
+| ✓ Aligned | 15 (100%) |
 | ⚠️ Drifted | 0 (0%) |
 | ✗ Not Implemented | 0 (0%) |
 | 🆕 Unspecced Code | 0 |
@@ -28,6 +28,7 @@ Project: SalesInsight-PY
 - FR-007: Preserves raw strings without premature mutation (`modulo_vendas.py:21-23`, verified in `tests/test_modulo_vendas.py:82-110`).
 - FR-008: Resilient `try/except (FileNotFoundError, OSError)` in `modulo_vendas.py:20-26` returning `[]` and printing `[ERRO] Arquivo não encontrado: <caminho_arquivo>`; parent directory creation in `gerador_dados.py:83-84`.
 - FR-009: `main.py:9-15` orchestrates conditional dataset generation (`gerar_dataset_sintetico` from `gerador_dados.py`) and loading (`carregar_csv` from `modulo_vendas.py`).
+- FR-010: Isolated local `.venv` execution supported and documented in `README.md` and `quickstart.md`, with `.venv/` ignored in `.gitignore:5` and `.dockerignore:5` alongside Docker Compose (`Dockerfile`, `docker-compose.yml`).
 - SC-001: Generation and loading of 151 records completes in < 0.1s (`tests/test_modulo_vendas.py`).
 - SC-002: 100% deterministic output for identical `seed` (`tests/test_modulo_vendas.py:25-33`).
 - SC-003: All 3 categories of noise verified present for `n_registros >= 100` (`tests/test_modulo_vendas.py:38-80`).
