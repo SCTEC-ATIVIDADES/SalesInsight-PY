@@ -155,3 +155,7 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 ## Phase 10: Convergence
 
 - [X] T019 Use `pandas.to_datetime` for batch date validation in `modulo_vendas.py`; preserve explicit list/dictionary iteration for rejection reasons, conversions, deduplication, and output order; verify batch invalid-date handling in `tests/test_modulo_vendas.py` (Constitution II)
+
+## Phase 11: Convergence
+
+- [ ] T020 Preserve acceptance of valid `YYYY-MM-DD` dates across the Python-supported year range when using pandas batch parsing in `modulo_vendas.py`; add tests for valid dates outside pandas `datetime64[ns]` bounds and retain rejection of impossible dates (FR-006; SC-001; partial)
