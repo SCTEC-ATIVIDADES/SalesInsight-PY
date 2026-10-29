@@ -13,7 +13,7 @@ From the repository root, run the focused test module:
 .venv/bin/python -m pytest tests/test_modulo_vendas.py
 ```
 
-Expected outcome: all tests pass, including scenarios for whitespace normalization, valid numeric conversion, missing/malformed fields, batch invalid-date validation, invalid identifiers, missing/blank/invalid numeric values, finite prices, exact-duplicate removal after normalization, primary-reason accounting, input immutability, ordering, and empty input.
+Expected outcome: all tests pass, including scenarios for whitespace normalization, valid numeric conversion, missing/malformed fields, batch invalid-date validation including valid dates outside pandas timestamp bounds, invalid identifiers, missing/blank/invalid numeric values, finite prices, exact-duplicate removal after normalization, primary-reason accounting, input immutability, ordering, and empty input.
 
 Run the complete suite:
 

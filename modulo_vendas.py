@@ -154,7 +154,12 @@ def limpar_dados(
                 textos[campo] = valor.strip()
 
         if motivo is None and textos["data_venda"] not in datas_validas:
-            motivo = "data_venda_invalida"
+            try:
+                data_validada = datetime.strptime(textos["data_venda"], "%Y-%m-%d")
+                if data_validada.strftime("%Y-%m-%d") != textos["data_venda"]:
+                    motivo = "data_venda_invalida"
+            except ValueError:
+                motivo = "data_venda_invalida"
 
         if motivo is None:
             valor_qtd = linha["quantidade"]

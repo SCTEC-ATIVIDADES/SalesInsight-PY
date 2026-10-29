@@ -421,6 +421,29 @@ def test_limpar_dados_prioriza_quantidade_antes_do_identificador(
     assert "'quantidade_invalida': 1" in relatorio
 
 
+@pytest.mark.parametrize("data_venda", ["1500-01-01", "2500-12-31"])
+def test_limpar_dados_aceita_datas_validas_fora_do_limite_pandas(
+    data_venda: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    linha = {
+        "id_venda": "1",
+        "data_venda": data_venda,
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+
+    resultado = mv.limpar_dados([linha])
+    relatorio = capsys.readouterr().out
+
+    assert resultado[0]["data_venda"] == data_venda
+    assert "Registros Válidos: 1 | Registros Removidos: 0" in relatorio
+
+
 def test_limpar_dados_valida_datas_invalidas_em_lote(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
