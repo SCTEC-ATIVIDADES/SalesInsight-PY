@@ -223,6 +223,23 @@ def limpar_dados(
     return dados_limpos
 
 
+def criar_campos_derivados(dados: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Adiciona receita arredondada e faixa de preço a cada venda."""
+    dados_derivados: list[dict[str, Any]] = []
+    for registro in dados:
+        registro_derivado = dict(registro)
+        receita_total = round(registro["quantidade"] * registro["preco_unitario"], 2)
+        registro_derivado["receita_total"] = receita_total
+        if receita_total < 500:
+            registro_derivado["faixa_preco"] = "Baixo"
+        elif receita_total <= 2000:
+            registro_derivado["faixa_preco"] = "Médio"
+        else:
+            registro_derivado["faixa_preco"] = "Alto"
+        dados_derivados.append(registro_derivado)
+    return dados_derivados
+
+
 def exportar_resultados(
     metricas: dict[str, Any], pasta_saida: str | os.PathLike[str] = "outputs"
 ) -> None:

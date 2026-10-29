@@ -11,6 +11,51 @@ import gerador_dados as gd
 import modulo_vendas as mv
 
 
+def test_criar_campos_derivados_calcula_receita_preserva_campos_e_ordem() -> None:
+    dados = [
+        {"id_venda": 1, "quantidade": 3, "preco_unitario": 12.345, "cliente": "Ana"},
+        {"id_venda": 2, "quantidade": 2, "preco_unitario": 250, "cliente": "Bia"},
+    ]
+    original = [dict(registro) for registro in dados]
+
+    resultado = mv.criar_campos_derivados(dados)
+
+    assert [registro["receita_total"] for registro in resultado] == [37.04, 500]
+    assert [registro["id_venda"] for registro in resultado] == [1, 2]
+    assert [registro["cliente"] for registro in resultado] == ["Ana", "Bia"]
+    assert dados == original
+
+
+def test_criar_campos_derivados_classifica_com_receita_arredondada() -> None:
+    dados = [
+        {"quantidade": 1, "preco_unitario": 499.994},
+        {"quantidade": 1, "preco_unitario": 499.999},
+        {"quantidade": 1, "preco_unitario": 500},
+        {"quantidade": 1, "preco_unitario": 2000},
+        {"quantidade": 1, "preco_unitario": 2000.01},
+        {"quantidade": 1, "preco_unitario": 499.995},
+    ]
+
+    resultado = mv.criar_campos_derivados(dados)
+
+    assert [registro["receita_total"] for registro in resultado] == [499.99, 500, 500, 2000, 2000.01, 500]
+    assert [registro["faixa_preco"] for registro in resultado] == ["Baixo", "Médio", "Médio", "Médio", "Alto", "Médio"]
+
+
+def test_criar_campos_derivados_lista_vazia() -> None:
+    assert mv.criar_campos_derivados([]) == []
+
+
+def test_criar_campos_derivados_processa_10000_registros() -> None:
+    dados = [{"quantidade": n % 8 + 1, "preco_unitario": 123.456} for n in range(10_000)]
+
+    resultado = mv.criar_campos_derivados(dados)
+
+    assert len(resultado) == 10_000
+    assert all("receita_total" in registro and "faixa_preco" in registro for registro in resultado)
+    assert all(registro["receita_total"] == round(registro["quantidade"] * 123.456, 2) for registro in resultado)
+
+
 def test_gerar_dataset_sintetico_cria_arquivo_e_cabecalho(tmp_path: Path) -> None:
     arquivo = tmp_path / "vendas.csv"
     caminho = gd.gerar_dataset_sintetico(arquivo, n_registros=100, seed=42)

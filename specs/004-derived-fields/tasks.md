@@ -22,11 +22,11 @@ Nenhuma tarefa fundacional; estrutura e etapa de limpeza já existem.
 
 ### Tests
 
-- [ ] T001 [US1] Adicionar testes de receita arredondada, campos preservados e ordem em `tests/test_modulo_vendas.py`; executar para confirmar falha antes da implementação.
+- [X] T001 [US1] Adicionar testes de receita arredondada, campos preservados e ordem em `tests/test_modulo_vendas.py`; executar para confirmar falha antes da implementação.
 
 ### Implementation
 
-- [ ] T002 [US1] Implementar `criar_campos_derivados(dados)` com cálculo `round(quantidade * preco_unitario, 2)` e retorno dos registros em `modulo_vendas.py`.
+- [X] T002 [US1] Implementar `criar_campos_derivados(dados)` com cálculo `round(quantidade * preco_unitario, 2)` e retorno dos registros em `modulo_vendas.py`.
 
 **Checkpoint**: US1 funciona e testes de receita passam independentemente.
 
@@ -38,17 +38,17 @@ Nenhuma tarefa fundacional; estrutura e etapa de limpeza já existem.
 
 ### Tests
 
-- [ ] T003 [US2] Adicionar testes de classificação para receita abaixo de 500, igual a 500, igual a 2.000 e acima de 2.000 em `tests/test_modulo_vendas.py`; executar para confirmar falha antes da implementação da classificação.
+- [X] T003 [US2] Adicionar testes de classificação para receita abaixo de 500, igual a 500, igual a 2.000 e acima de 2.000 em `tests/test_modulo_vendas.py`; executar para confirmar falha antes da implementação da classificação.
 
 ### Implementation
 
-- [ ] T004 [US2] Completar `criar_campos_derivados` atribuindo `faixa_preco` conforme os limites inclusivos definidos, usando `receita_total` arredondada, em `modulo_vendas.py`.
+- [X] T004 [US2] Completar `criar_campos_derivados` atribuindo `faixa_preco` conforme os limites inclusivos definidos, usando `receita_total` arredondada, em `modulo_vendas.py`.
 
 **Checkpoint**: US1 e US2 funcionam; testes de receita e limites passam.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T005 Adicionar teste com 10.000 registros em `tests/test_modulo_vendas.py`; verificar que saída contém exatamente 10.000 registros, todos têm `receita_total` e `faixa_preco`, e cada resultado corresponde ao cálculo esperado.
+- [X] T005 Adicionar teste com 10.000 registros em `tests/test_modulo_vendas.py`; verificar que saída contém exatamente 10.000 registros, todos têm `receita_total` e `faixa_preco`, e cada resultado corresponde ao cálculo esperado.
 - [ ] T006 Executar validação quickstart (`pytest tests/test_modulo_vendas.py`, `pytest` e `python main.py`) conforme `specs/004-derived-fields/quickstart.md`.
 
 ## Dependencies & Execution Order
