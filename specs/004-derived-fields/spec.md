@@ -1,6 +1,6 @@
 # Feature Specification: RF04 – Criar Campos Derivados
 
-**Feature Branch**: `005-derived-sales-fields`
+**Feature Branch**: `004-derived-fields`
 
 **Created**: 2026-10-29
 

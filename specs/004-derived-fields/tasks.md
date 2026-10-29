@@ -1,6 +1,6 @@
 # Tasks: RF04 – Criar Campos Derivados
 
-**Input**: Design documents from `/specs/005-derived-sales-fields/`
+**Input**: Design documents from `/specs/004-derived-fields/`
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
@@ -48,7 +48,8 @@ Nenhuma tarefa fundacional; estrutura e etapa de limpeza já existem.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T005 [P] Executar validação quickstart (`pytest tests/test_modulo_vendas.py`, `pytest` e `python main.py`) conforme `specs/005-derived-sales-fields/quickstart.md`.
+- [ ] T005 [P] Adicionar teste de processamento de 10.000 registros em `tests/test_modulo_vendas.py`; executar e confirmar todos os registros recebem campos derivados.
+- [ ] T006 [P] Executar validação quickstart (`pytest tests/test_modulo_vendas.py`, `pytest` e `python main.py`) conforme `specs/004-derived-fields/quickstart.md`.
 
 ## Dependencies & Execution Order
 
@@ -57,7 +58,16 @@ Nenhuma tarefa fundacional; estrutura e etapa de limpeza já existem.
 - Setup e Foundational: sem tarefas; nada bloqueia início.
 - US1: independente; entregar primeiro como MVP.
 - US2: depende de T002, pois classificação consome `receita_total` calculada.
-- Polish: depende de T002 e T004.
+- T005 valida escala após T002 e T004; T006 depende da suíte completa.
+- Polish: validação final depende de T002, T004 e T005.
+
+### Coverage
+
+- FR-001: T001, T002
+- FR-002–FR-004: T003, T004
+- FR-005: T001, T002
+- SC-001–SC-003: T001–T004
+- SC-004: T005
 
 ### User Story Dependencies
 

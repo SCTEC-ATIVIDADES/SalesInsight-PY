@@ -1,8 +1,8 @@
 # Implementation Plan: RF04 – Criar Campos Derivados
 
-**Branch**: `005-derived-sales-fields` | **Date**: 2026-10-29 | **Spec**: [spec.md](./spec.md)
+**Branch**: `004-derived-fields` | **Date**: 2026-10-29 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `/specs/005-derived-sales-fields/spec.md`
+**Input**: Feature specification from `/specs/004-derived-fields/spec.md`
 
 ## Summary
 
@@ -47,7 +47,7 @@ Adicionar em `modulo_vendas.py` uma transformação reutilizável que calcula `r
 ### Documentation (this feature)
 
 ```text
-specs/005-derived-sales-fields/
+specs/004-derived-fields/
 ├── plan.md
 ├── research.md
 ├── data-model.md
