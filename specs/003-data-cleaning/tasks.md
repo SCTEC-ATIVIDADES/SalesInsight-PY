@@ -143,3 +143,7 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 
 - [X] T015 Preserve duplicate input rows in `limpar_dados` in `modulo_vendas.py`; deduplication is outside RF03, and repeated IDs are not sufficient evidence to reject a sale (Constitution IV; resolved by scope decision)
 - [X] T016 Update the Constitution Check in `specs/003-data-cleaning/plan.md` and completed quality-gate task notes in `specs/003-data-cleaning/tasks.md` to record successful local and Docker runs and generation of both required output files (plan: Constitution Check V)
+
+## Phase 8: Convergence
+
+- [ ] T017 Replace the preserve-duplicates behavior with deterministic removal of exact duplicate sales rows in `limpar_dados` in `modulo_vendas.py`; add a structured `registro_duplicado` rejection count and tests in `tests/test_modulo_vendas.py` proving RF01's injected duplicate is removed once, unique rows remain ordered, and totals reconcile (CRITICAL; Constitution IV; US2; contradicts)
