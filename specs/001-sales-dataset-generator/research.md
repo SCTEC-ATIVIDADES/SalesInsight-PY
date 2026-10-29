@@ -3,9 +3,9 @@
 **Feature**: `001-sales-dataset-generator`  
 **Date**: 2026-10-26
 
-## 1. Biblioteca de Geração de Dados Mockados/Fakes e Determinismo
+## 1. Biblioteca de Geração de Dados Mockados/Fakes, Determinismo e Módulo Independente
 
-- **Decision**: Utilizar a biblioteca `Faker` (`Faker('pt_BR')` com `Faker.seed(seed)` e `instancia.seed_instance(seed)`) combinada com `random.seed(seed)` da biblioteca padrão do Python para geração de registros de vendas realistas e 100% determinísticos.
+- **Decision**: Isolar a geração de dados no módulo independente `gerador_dados.py` utilizando a biblioteca `Faker` (`Faker('pt_BR')` com `Faker.seed(seed)` e `instancia.seed_instance(seed)`) combinada com `random.seed(seed)` da biblioteca padrão do Python para geração de registros de vendas realistas e 100% determinísticos (com reexportação de `gerar_dataset_sintetico` em `modulo_vendas.py` por compatibilidade).
 - **Rationale**:
   - A especificação da tarefa solicita na Opção B o uso de uma biblioteca para gerar dados reais/mockados/fakes com no mínimo 100 registros, mantendo o contrato estrutural do RF01 (`id_venda`, `data_venda`, `cliente`, `produto`, `categoria`, `regiao`, `quantidade`, `preco_unitario`).
   - `Faker` é o padrão de mercado em Python para geração de dados sintéticos/mockados localizados (`pt_BR`), permitindo gerar nomes de clientes/identificadores e datas realistas em 2024 de forma determinística quando semeado com `seed_instance(seed)`.

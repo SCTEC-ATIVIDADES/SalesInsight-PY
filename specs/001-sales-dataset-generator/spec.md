@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "RF01 – Criar ou Carregar o Dataset de Vendas: O projeto deverá ter um dataset de vendas. O estudante pode gerar o dataset sinteticamente no próprio código (recomendado para facilitar a reprodução) ou utilizar um arquivo CSV real. Opção B – Usar IA para gerar o CSV: O estudante pode usar uma IA e solicitar que gere o arquivo CSV, desde que contenha ao menos as colunas: data, produto, categoria, quantidade, preço e região. O mínimo de registros é 100. Para gerar os dados do csv, vamos usar uma lib para gerar dados reais/mockados/fakes"
+**Input**: User description: "RF01 – Criar ou Carregar o Dataset de Vendas: O projeto deverá ter um dataset de vendas. O estudante pode gerar o dataset sinteticamente no próprio código (recomendado para facilitar a reprodução) ou utilizar um arquivo CSV real. Opção B – Usar IA para gerar o CSV: O estudante pode usar uma IA e solicitar que gere o arquivo CSV, desde que contenha ao menos as colunas: data, produto, categoria, quantidade, preço e região. O mínimo de registros é 100. Para gerar os dados do csv, vamos usar uma lib para gerar dados reais/mockados/fakes. A geração dos dados fica em um arquivo/módulo independente."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -65,9 +65,9 @@ Como usuário executando o pipeline, preciso receber mensagens claras e um compo
 
 ### Functional Requirements
 
-- **FR-001**: O sistema DEVE disponibilizar uma rotina reutilizável para gerar um dataset de vendas contendo dados mockados/fakes realistas quando o arquivo de entrada não existir ou quando solicitado explicitamente.
+- **FR-001**: O sistema DEVE disponibilizar uma rotina reutilizável em um arquivo/módulo independente dedicado exclusivamente à geração de dados para criar um dataset de vendas contendo dados mockados/fakes realistas quando o arquivo de entrada não existir ou quando solicitado explicitamente, mantendo a responsabilidade de geração desacoplada do módulo de processamento e leitura do pipeline.
 - **FR-002**: O dataset gerado DEVE conter obrigatoriamente as colunas `id_venda`, `data_venda`, `cliente`, `produto`, `categoria`, `regiao`, `quantidade` e `preco_unitario`, contemplando todos os campos exigidos para análise (data, produto, categoria, quantidade, preço e região, além de identificador e cliente).
-- **FR-003**: A geração do dataset DEVE produzir no mínimo 100 registros por padrão (permitindo parametrização da quantidade de registros e do caminho do arquivo de destino, tendo `vendas.csv` como caminho relativo padrão).
+- **FR-003**: A geração do dataset DEVE produzir no mínimo 100 registros por padrão (ex.: `n_registros=100` na função e `150` na execução de demonstração em `main.py`, permitindo parametrização da quantidade de registros e do caminho do arquivo de destino, tendo `vendas.csv` como caminho relativo padrão).
 - **FR-004**: A geração de dados DEVE aceitar uma semente de aleatoriedade (`seed`, padrão `42`) que garanta que a criação de dados mockados/fakes e a injeção de inconsistências sejam 100% determinísticas e reproduzíveis entre diferentes execuções.
 - **FR-005**: O dataset gerado DEVE utilizar o catálogo de produtos (`Notebook`, `Smartphone`, `Tablet`, `Monitor`, `Teclado`, `Mouse`), suas respectivas categorias (`Eletrônicos`, `Celulares`, `Acessórios`) e as cinco regiões brasileiras (`Sudeste`, `Sul`, `Nordeste`, `Centro-Oeste`, `Norte`), combinados com dados mockados/fakes realistas para clientes, datas de venda (no formato `AAAA-MM-DD`) e preços unitários (entre 100,00 e 3500,00).
 - **FR-006**: A rotina de geração DEVE injetar inconsistências controladas no arquivo gerado para viabilizar a validação das etapas posteriores de limpeza, incluindo: valores ausentes/vazios em `quantidade` (aprox. 5% de chance), valores ausentes/vazios em `preco_unitario` (aprox. 5% de chance), espaços em branco sobressalentes no início e fim do nome do `produto` (aprox. 10% de chance) e registro duplicado.

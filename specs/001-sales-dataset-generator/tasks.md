@@ -8,7 +8,7 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 **Input**: Design documents from `/specs/001-sales-dataset-generator/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: Included as REQUIRED by Constitution Principle III (Desenvolvimento Orientado a Testes - TDD INEGOCIÁVEL) and FR-010. All test tasks MUST be written first and fail before implementation.
+**Tests**: Included as REQUIRED by Constitution Principle III (Desenvolvimento Orientado a Testes - TDD INEGOCIÁVEL). All test tasks MUST be written first and fail before implementation.
 
 **Organization**: Tasks are grouped by user story (`US1`, `US2`, `US3`) to enable independent implementation and testing of each story.
 
@@ -20,7 +20,7 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 
 ## Path Conventions
 
-- **Root module**: `modulo_vendas.py`, `main.py`, `vendas.csv`, `requirements.txt` at repository root
+- **Root modules**: `gerador_dados.py` (geração independente do dataset), `modulo_vendas.py` (leitura/processamento do pipeline), `main.py`, `vendas.csv`, `requirements.txt` at repository root
 - **Tests**: `tests/test_modulo_vendas.py`
 - **Container & Docs**: `Dockerfile`, `docker-compose.yml`, `README.md`
 
@@ -32,17 +32,17 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 
 - [ ] T001 Create `requirements.txt` at repository root with pinned versions for `pandas`, `pytest`, and `Faker`
 - [ ] T002 [P] Create `tests/` directory and initialize `tests/test_modulo_vendas.py` with pytest imports and module import scaffold
-- [ ] T003 [P] Configure `docker-compose.yml` at repository root to run `python main.py` and `pytest` mounting project root volume
+- [ ] T003 [P] Create `Dockerfile` and configure `docker-compose.yml` at repository root to run `python main.py` and `pytest` mounting project root volume
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Domain catalog constants and module skeleton in `modulo_vendas.py` that all user stories depend on.
+**Purpose**: Domain catalog constants and module skeleton in `gerador_dados.py` and `modulo_vendas.py` that all user stories depend on.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Define domain catalog constants (`CABECALHO_VENDAS`, `PRODUTOS`, `CATEGORIAS`, `REGIOES`) in `modulo_vendas.py` matching `data-model.md` constraints (`["id_venda", "data_venda", "cliente", "produto", "categoria", "regiao", "quantidade", "preco_unitario"]`, products `["Notebook", "Smartphone", "Tablet", "Monitor", "Teclado", "Mouse"]`, categories `{"Notebook": "Eletrônicos", "Monitor": "Eletrônicos", "Smartphone": "Celulares", "Tablet": "Celulares", "Teclado": "Acessórios", "Mouse": "Acessórios"}`, regions `["Sudeste", "Sul", "Nordeste", "Centro-Oeste", "Norte"]`)
+- [ ] T004 Define domain catalog constants (`CABECALHO_VENDAS`, `PRODUTOS`, `CATEGORIAS`, `REGIOES`) in `gerador_dados.py` (and import in `modulo_vendas.py`) matching `data-model.md` constraints (`["id_venda", "data_venda", "cliente", "produto", "categoria", "regiao", "quantidade", "preco_unitario"]`, products `["Notebook", "Smartphone", "Tablet", "Monitor", "Teclado", "Mouse"]`, categories `{"Notebook": "Eletrônicos", "Monitor": "Eletrônicos", "Smartphone": "Celulares", "Tablet": "Celulares", "Teclado": "Acessórios", "Mouse": "Acessórios"}`, regions `["Sudeste", "Sul", "Nordeste", "Centro-Oeste", "Norte"]`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in priority order (or in parallel).
 
@@ -64,7 +64,7 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 
 ### Implementation for User Story 1 (TDD - Green & Refactor Phase)
 
-- [ ] T008 [US1] Implement `gerar_dataset_sintetico(caminho_arquivo="vendas.csv", n_registros=100, seed=42) -> str` in `modulo_vendas.py` using `Faker('pt_BR')` (`seed_instance(seed)`), `random.Random(seed)`, and `csv.writer` (`encoding="utf-8"`, `newline=""`), enforcing constraints: sequential `id_venda` (`1..n_registros`), `data_venda` in `2024` (`YYYY-MM-DD`), 30-client pool in `cliente`, ~10% `f"  {prod} "` padding in `produto`, ~5% `""` in `quantidade` (otherwise `randint(1, 8)`), ~5% `""` in `preco_unitario` (otherwise `round(uniform(100, 3500), 2)`), writing `dados[0]` duplicate row before `writer.writerows(dados)`, and printing `[OK] Dataset gerado em: {caminho_arquivo}`
+- [ ] T008 [US1] Implement `gerar_dataset_sintetico(caminho_arquivo="vendas.csv", n_registros=100, seed=42) -> str` in `gerador_dados.py` (and re-export in `modulo_vendas.py`) using `Faker('pt_BR')` (`seed_instance(seed)`), `random.Random(seed)`, and `csv.writer` (`encoding="utf-8"`, `newline=""`), enforcing constraints: sequential `id_venda` (`1..n_registros`), `data_venda` in `2024` (`YYYY-MM-DD`), 30-client pool in `cliente`, ~10% `f"  {prod} "` padding in `produto`, ~5% `""` in `quantidade` (otherwise `randint(1, 8)`), ~5% `""` in `preco_unitario` (otherwise `round(uniform(100, 3500), 2)`), writing `dados[0]` duplicate row before `writer.writerows(dados)`, and printing `[OK] Dataset gerado em: {caminho_arquivo}`
 
 **Checkpoint**: At this point, User Story 1 (`gerar_dataset_sintetico`) is fully functional and passes all US1 unit tests independently.
 
@@ -83,7 +83,7 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 ### Implementation for User Story 2 (TDD - Green & Refactor Phase)
 
 - [ ] T010 [US2] Implement `carregar_csv(caminho_arquivo="vendas.csv") -> list[dict[str, str]]` in `modulo_vendas.py` using `csv.DictReader` (`mode="r"`, `encoding="utf-8"`, `newline=""`) and explicit `for` loop to build and return `list[dict[str, str]]`
-- [ ] T011 [US2] Implement RF01 orchestration entry point in `main.py` checking `if not os.path.exists(arquivo_dados): mv.gerar_dataset_sintetico(arquivo_dados, n_registros=150)` followed by `dados_brutos = mv.carregar_csv(arquivo_dados)` without overwriting existing `vendas.csv`
+- [ ] T011 [US2] Implement RF01 orchestration entry point in `main.py` importing `gerar_dataset_sintetico` from `gerador_dados` and `carregar_csv` from `modulo_vendas`, checking `if not os.path.exists(arquivo_dados): gerar_dataset_sintetico(arquivo_dados, n_registros=150)` followed by `dados_brutos = mv.carregar_csv(arquivo_dados)` without overwriting existing `vendas.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 both work independently and through `main.py`.
 
@@ -101,7 +101,7 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 
 ### Implementation for User Story 3 (TDD - Green & Refactor Phase)
 
-- [ ] T013 [US3] Add parent directory creation (`Path(caminho_arquivo).parent.mkdir(parents=True, exist_ok=True)`) in `gerar_dataset_sintetico` and `try...except (FileNotFoundError, OSError)` error handling in `carregar_csv` within `modulo_vendas.py` printing `[ERRO] Arquivo não encontrado: {caminho_arquivo}` and returning `[]`
+- [ ] T013 [US3] Add parent directory creation (`Path(caminho_arquivo).parent.mkdir(parents=True, exist_ok=True)`) in `gerar_dataset_sintetico` (`gerador_dados.py`) and `try...except (FileNotFoundError, OSError)` error handling in `carregar_csv` (`modulo_vendas.py`) printing `[ERRO] Arquivo não encontrado: {caminho_arquivo}` and returning `[]`
 
 **Checkpoint**: All user stories (US1, US2, US3) are independently functional and tested.
 
@@ -156,7 +156,7 @@ Task T006: "Write test_gerar_dataset_sintetico_determinismo_seed in tests/test_m
 Task T007: "Write test_gerar_dataset_sintetico_inconsistencias_deliberadas in tests/test_modulo_vendas.py"
 
 # 2. Implement generator to pass all US1 tests (Green Phase):
-Task T008: "Implement gerar_dataset_sintetico in modulo_vendas.py"
+Task T008: "Implement gerar_dataset_sintetico in gerador_dados.py"
 ```
 
 ---

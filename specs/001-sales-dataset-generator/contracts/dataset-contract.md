@@ -1,12 +1,12 @@
 # Contract: Interface do Módulo e Esquema CSV (RF01)
 
-**Feature**: `001-sales-dataset-generator`  
-**Module**: `modulo_vendas.py`  
+**Feature**: `001-sales-dataset-generator`
+**Modules**: `gerador_dados.py` (geração independente) e `modulo_vendas.py` (leitura e reexportação)
 **Date**: 2026-10-26
 
-## 1. Contratos de Funções Públicas (`modulo_vendas.py`)
+## 1. Contratos de Funções Públicas (`gerador_dados.py` e `modulo_vendas.py`)
 
-### 1.1. `gerar_dataset_sintetico`
+### 1.1. `gerar_dataset_sintetico` (`gerador_dados.py`, reexportada em `modulo_vendas.py`)
 
 ```python
 def gerar_dataset_sintetico(

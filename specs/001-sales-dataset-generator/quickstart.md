@@ -35,7 +35,7 @@ pytest tests/test_modulo_vendas.py -v
 ### Cenário 2: Gerar e Carregar o Dataset via Linha de Comando
 
 ```bash
-python -c "import modulo_vendas as mv; mv.gerar_dataset_sintetico('vendas.csv', n_registros=100, seed=42); dados = mv.carregar_csv('vendas.csv'); print('Registros lidos:', len(dados)); print('Colunas:', list(dados[0].keys()))"
+python -c "import gerador_dados as gd, modulo_vendas as mv; gd.gerar_dataset_sintetico('vendas.csv', n_registros=100, seed=42); dados = mv.carregar_csv('vendas.csv'); print('Registros lidos:', len(dados)); print('Colunas:', list(dados[0].keys()))"
 ```
 
 **Resultado Esperado**:

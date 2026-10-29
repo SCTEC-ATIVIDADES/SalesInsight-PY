@@ -24,7 +24,9 @@ Sync Impact Report:
 
 ### I. Modularização e Separação de Responsabilidades
 Toda a lógica de leitura, inspeção, limpeza, transformação, cálculo de métricas, segmentação de
-clientes e exportação DEVE residir em funções reutilizáveis dentro de `modulo_vendas.py`. Cada
+clientes e exportação DEVE residir em funções reutilizáveis dentro de `modulo_vendas.py`, enquanto a
+geração sintética/mockada do dataset de vendas DEVE residir em um módulo independente dedicado
+(`gerador_dados.py`, podendo ser reexportada por `modulo_vendas.py` para conveniência). Cada
 função DEVE possuir nome claro, docstring concisa e assinatura com parâmetros e retornos
 explícitos. O ponto de entrada `main.py` DEVE limitar-se a importar e orquestrar o fluxo dentro
 de um bloco `if __name__ == "__main__":`, sem conter regras de negócio.
@@ -76,7 +78,8 @@ contratos de saída para consumo externo.
 - **Linguagem e Bibliotecas**: Python 3.11+ com `pandas` e `pytest` com versões fixadas em
   `requirements.txt`, além dos módulos nativos (`csv`, `json`, `os`, `datetime`, `pathlib`).
 - **Estrutura de Diretórios Obrigatória**:
-  - `modulo_vendas.py`: Funções do pipeline de vendas.
+  - `gerador_dados.py`: Módulo independente responsável exclusivamente pela geração sintética/mockada do dataset (`gerar_dataset_sintetico`).
+  - `modulo_vendas.py`: Funções do pipeline de vendas (leitura, inspeção, limpeza, transformação, agregação, segmentação e exportação).
   - `main.py`: Orquestração principal do fluxo.
   - `vendas.csv`: Dataset de entrada com inconsistências deliberadas para validação.
   - `tests/test_modulo_vendas.py`: Suíte completa de testes automatizados.

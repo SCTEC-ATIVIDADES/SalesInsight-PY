@@ -6,7 +6,7 @@
 
 ## Summary
 
-Implementar a rotina de criação determinística e carregamento estruturado do dataset de vendas (`vendas.csv`) dentro do módulo reutilizável `modulo_vendas.py`, utilizando a biblioteca `Faker` (`pt_BR`) combinada com os módulos nativos `csv`, `random` e `pathlib` para gerar no mínimo 100 registros realistas com inconsistências deliberadas controladas (valores nulos, espaços sobressalentes e registro duplicado), além da leitura parametrizada com `csv.DictReader` e tratamento resiliente de falhas de I/O, validados via TDD com `pytest` em `tests/test_modulo_vendas.py`.
+Implementar a rotina de criação determinística do dataset de vendas (`vendas.csv`) em um módulo independente dedicado (`gerador_dados.py`) e a rotina de carregamento estruturado em `modulo_vendas.py` (com reexportação opcional para compatibilidade), utilizando a biblioteca `Faker` (`pt_BR`) combinada com os módulos nativos `csv`, `random` e `pathlib` para gerar no mínimo 100 registros realistas com inconsistências deliberadas controladas (valores nulos, espaços sobressalentes e registro duplicado), além da leitura parametrizada com `csv.DictReader` e tratamento resiliente de falhas de I/O, validados via TDD com `pytest` em `tests/test_modulo_vendas.py`.
 
 ## Technical Context
 
@@ -20,7 +20,7 @@ Implementar a rotina de criação determinística e carregamento estruturado do 
 
 **Target Platform**: Linux / macOS / Windows e container Docker (Python 3.11+)
 
-**Project Type**: CLI / Data Processing Pipeline Module (`modulo_vendas.py` + `main.py`)
+**Project Type**: CLI / Data Processing Pipeline Module (`gerador_dados.py` + `modulo_vendas.py` + `main.py`)
 
 **Performance Goals**: Geração e leitura de 100 a 1.000 registros de vendas em menos de 1 segundo (< 2s limite máximo SC-001)
 
@@ -34,7 +34,7 @@ Implementar a rotina de criação determinística e carregamento estruturado do 
 
 | Princípio da Constituição | Status (Pré-Pesquisa) | Status (Pós-Design) | Evidência / Atendimento |
 |---------------------------|-----------------------|---------------------|-------------------------|
-| **I. Modularização e Separação de Responsabilidades** | PASS | PASS | `gerar_dataset_sintetico` e `carregar_csv` residem em `modulo_vendas.py` com docstrings e tipagem explícita; `main.py` apenas orquestra a chamada se `vendas.csv` não existir. |
+| **I. Modularização e Separação de Responsabilidades** | PASS | PASS | `gerar_dataset_sintetico` reside no módulo independente `gerador_dados.py` e `carregar_csv` reside em `modulo_vendas.py` (que também reexporta `gerar_dataset_sintetico` por conveniência) com docstrings e tipagem explícita; `main.py` apenas orquestra a chamada se `vendas.csv` não existir. |
 | **II. Processamento Explícito e Estruturas Nativas com Pandas** | PASS | PASS | Uso explícito de `csv.writer`, `csv.DictReader`, listas, dicionários e laços `for`, mantendo `pandas` nas dependências fixadas do projeto. |
 | **III. Desenvolvimento Orientado a Testes (TDD - INEGOCIÁVEL)** | PASS | PASS | Testes unitários em `tests/test_modulo_vendas.py` escritos antes da implementação cobrindo geração, determinismo por `seed`, ruídos deliberados, leitura e erro de arquivo inexistente. |
 | **IV. Qualidade, Limpeza de Dados e Tratamento Resiliente de Erros** | PASS | PASS | Injeção determinística de nulos, espaços e duplicata para exercitar a limpeza; `carregar_csv` captura `FileNotFoundError`/`OSError` emitindo mensagem clara e retornando `[]`. |
@@ -61,7 +61,8 @@ specs/001-sales-dataset-generator/
 
 ```text
 SalesInsight-PY/
-├── modulo_vendas.py             # Módulo principal com gerar_dataset_sintetico() e carregar_csv()
+├── gerador_dados.py             # Módulo independente dedicado à geração do dataset (gerar_dataset_sintetico)
+├── modulo_vendas.py             # Módulo principal do pipeline de vendas (carregar_csv e etapas RF02-RF08)
 ├── main.py                      # Ponto de entrada que orquestra a criação/leitura de vendas.csv
 ├── vendas.csv                   # Dataset de entrada gerado/carregado na raiz do projeto
 ├── requirements.txt             # Dependências com versões fixadas (pandas, pytest, Faker)
@@ -73,7 +74,7 @@ SalesInsight-PY/
 └── outputs/                     # Diretório de artefatos gerados pelo pipeline completo
 ```
 
-**Structure Decision**: Estrutura enxuta na raiz do repositório conforme exigido pela Constituição (`Stack Tecnológica e Restrições Arquiteturais`) e pela seção `4.1. ORGANIZAÇÃO DO PROJETO` de `ASSIGMENT.md` (`modulo_vendas.py`, `main.py`, `vendas.csv`, `tests/test_modulo_vendas.py`, `outputs/`).
+**Structure Decision**: Estrutura enxuta na raiz do repositório conforme exigido pela Constituição (`Stack Tecnológica e Restrições Arquiteturais`), separando a geração sintética/mockada de dados em um módulo independente (`gerador_dados.py`) e mantendo o pipeline analítico em `modulo_vendas.py`, `main.py`, `vendas.csv`, `tests/test_modulo_vendas.py` e `outputs/`.
 
 ## Complexity Tracking
 
