@@ -68,7 +68,7 @@
 
 **Purpose**: Verify the integrated cleaning stage and project regression suite.
 
-- [X] T009 [P] From the repository root, run focused/full suites with `docker compose run --rm app python -m pytest tests/test_modulo_vendas.py` and `docker compose run --rm app python -m pytest`; both passed (24 tests passed in the full suite). Host `python3 -m pytest` cannot collect tests because `Faker` is not installed locally.
+- [X] T009 [P] From the repository root, run focused/full suites with `docker compose run --rm app python -m pytest tests/test_modulo_vendas.py` and `docker compose run --rm app python -m pytest`; both passed (24 tests passed in the full suite). A final post-implementation rerun also passed (24/24). Host `python3 -m pytest` cannot collect tests because `Faker` is not installed locally.
 - [ ] T010 From the repository root, run `python3 main.py`; verify successful exit and existence of `outputs/metricas_resumo.csv` and `outputs/estatisticas.json`. Host execution is blocked by `ModuleNotFoundError: No module named 'faker'`; container execution succeeds, but both files remain absent because export functionality is not implemented.
 - [ ] T011 From the repository root, run `docker compose up --build --exit-code-from app`; verify successful exit and both expected output files under the mounted `outputs/` directory. The command succeeds, but the files remain absent because export functionality is not implemented.
 - [X] T012 [P] Follow `specs/003-data-cleaning/quickstart.md`; verified normalization, numeric conversions, invalid-row reason output, empty-list zero counters, and input preservation using the passing focused tests
@@ -133,3 +133,8 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 - Every task follows `- [ ] T### [P?] [US#?] description with file path`.
 - `[P]` is used only for independent tasks; none of the story implementation tasks can safely run in parallel because they edit the same module/test file and follow TDD order.
 - The function returns the cleaned list; per-reason counts are printed in the report, consistent with the design contract.
+
+## Phase 6: Convergence
+
+- [ ] T013 Implement and integrate the complete `main.py` pipeline with `limpar_dados` and the export functions in `modulo_vendas.py`; generate `outputs/metricas_resumo.csv` and `outputs/estatisticas.json` to satisfy Constitution V and unblock T010–T011 (CRITICAL; Constitution V; missing)
+- [ ] T014 Install project dependencies from `requirements.txt` into the local Python 3.11+ environment and run `python3 main.py`; verify successful local execution and required output artifacts per T010 (HIGH; T010; partial)
