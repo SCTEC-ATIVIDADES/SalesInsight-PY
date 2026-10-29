@@ -1,0 +1,85 @@
+# Feature Specification: RF03 – Limpar e Tratar os Dados
+
+**Feature Branch**: `004-data-cleaning`
+
+**Created**: 2026-10-29
+
+**Status**: Draft
+
+**Input**: User description: "RF03 – Limpar e Tratar os Dados. A função deve ler a lista de dicionários, remover espaços extras nas strings (`.strip()`), ignorar/filtrar registros com valores vazios ou inválidos para `quantidade` e `preco_unitario`, e converter esses campos para `int` e `float`. Registros válidos devem ser devolvidos em lista limpa, reportando quantos foram válidos e removidos."
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Normalizar registros válidos (Priority: P1)
+
+Como analista de vendas, quero receber registros consistentes, com espaços externos removidos e tipos numéricos apropriados, para que as etapas seguintes possam analisar os dados de forma confiável.
+
+**Why this priority**: Produzir registros limpos e utilizáveis é o propósito central desta etapa do pipeline.
+
+**Independent Test**: Fornecer registros válidos com espaços em campos textuais e valores numéricos como texto; verificar os textos normalizados, a quantidade inteira, o preço decimal e a preservação dos demais campos de venda.
+
+**Acceptance Scenarios**:
+
+1. **Given** um registro com campos textuais cercados por espaços e valores numéricos válidos, **When** a limpeza é executada, **Then** o registro resultante tem os espaços externos removidos e quantidade e preço convertidos para seus tipos numéricos correspondentes.
+2. **Given** uma lista com vários registros válidos, **When** a limpeza é executada, **Then** todos são devolvidos na mesma ordem em uma coleção de dados limpos.
+
+---
+
+### User Story 2 - Excluir dados inválidos e reportar o resultado (Priority: P2)
+
+Como analista, quero que registros com quantidade ou preço ausente ou inválido sejam descartados e contabilizados, para evitar que dados impróprios contaminem as análises.
+
+**Why this priority**: A validação impede que valores ausentes ou não numéricos sejam tratados como vendas válidas e torna a qualidade do resultado visível.
+
+**Independent Test**: Fornecer registros com campos numéricos vazios, compostos por espaços ou não conversíveis; verificar que são excluídos e que as contagens de válidos e removidos correspondem à entrada.
+
+**Acceptance Scenarios**:
+
+1. **Given** um registro com quantidade ou preço vazio ou composto apenas por espaços, **When** a limpeza é executada, **Then** o registro é ignorado e contado como removido.
+2. **Given** um registro com quantidade não inteira ou preço não numérico, **When** a limpeza é executada, **Then** o registro é ignorado e contado como removido sem interromper o processamento dos demais.
+3. **Given** uma coleção contendo registros válidos e inválidos, **When** a limpeza é concluída, **Then** o relatório apresenta as contagens exatas de válidos e removidos.
+
+### Edge Cases
+
+- Uma lista vazia resulta em lista limpa vazia e contagens de válidos e removidos iguais a zero.
+- Quantidade ou preço contendo somente espaços é considerado vazio após normalização.
+- Valores numéricos que não possam ser convertidos ao tipo requerido tornam o registro inválido; os demais registros continuam a ser processados.
+- A função trabalha sobre os registros de entrada sem alterar os valores da lista original.
+- Campos textuais obrigatórios vazios após remoção dos espaços não são explicitamente definidos como critério de remoção; a validação exigida nesta funcionalidade concentra-se em quantidade e preço.
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: O sistema DEVE aceitar uma coleção de registros de venda estruturados como dicionários e produzir uma coleção separada de registros limpos.
+- **FR-002**: O sistema DEVE remover espaços externos dos campos textuais do registro, incluindo cliente, produto, categoria, região e data da venda.
+- **FR-003**: O sistema DEVE remover qualquer registro cuja quantidade ou preço unitário esteja ausente, vazio ou composto somente por espaços.
+- **FR-004**: O sistema DEVE converter a quantidade de cada registro elegível para número inteiro e o preço unitário para número decimal.
+- **FR-005**: O sistema DEVE remover registros cujos valores de quantidade ou preço unitário não possam ser convertidos aos tipos requeridos, sem interromper o processamento da coleção.
+- **FR-006**: Para registros aceitos, o sistema DEVE preservar os campos da venda e normalizar o identificador para inteiro, conforme o formato esperado do registro limpo.
+- **FR-007**: O sistema DEVE informar no relatório a quantidade de registros válidos e a quantidade removida, e devolver os registros válidos na ordem de entrada.
+- **FR-008**: O sistema DEVE deixar a coleção original inalterada durante a limpeza.
+- **FR-009**: Uma coleção vazia DEVE ser processada sem erro e produzir zero registros válidos e zero removidos.
+
+### Key Entities *(include if data involved)*
+
+- **Registro bruto de venda**: Dicionário de uma venda recebida da etapa de carregamento, contendo identificador, data, cliente, produto, categoria, região, quantidade e preço unitário, possivelmente ainda como texto.
+- **Registro limpo de venda**: Registro aceito com textos sem espaços externos, identificador e quantidade inteiros e preço unitário decimal.
+- **Relatório de limpeza**: Resumo com o total de registros válidos e removidos durante o processamento.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: 100% dos registros com quantidade e preço válidos são preservados na saída, com valores numéricos nos tipos requeridos e espaços externos removidos dos campos textuais.
+- **SC-002**: 100% dos registros com quantidade ou preço ausente, vazio ou não conversível são excluídos e incluídos na contagem de removidos.
+- **SC-003**: Em todas as execuções, a soma de registros válidos e removidos é igual ao total de registros de entrada.
+- **SC-004**: A coleção original permanece inalterada após o processamento, inclusive quando registros inválidos são encontrados.
+- **SC-005**: Uma coleção vazia resulta em zero registros válidos e zero removidos, sem falhas.
+
+## Assumptions
+
+- A entrada segue o formato de lista de dicionários de vendas estabelecido pelas etapas anteriores do pipeline.
+- O identificador e os demais campos esperados estão presentes em cada linha bem formada; os registros com falhas de conversão de campos numéricos são removidos.
+- A conversão decimal segue as regras numéricas aceitas pelo formato dos dados de entrada; normalização de separadores decimais não está incluída.
+- O relatório é apresentado ao usuário ao término da limpeza, e a função retorna somente a coleção de registros limpos.
