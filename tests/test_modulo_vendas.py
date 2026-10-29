@@ -273,6 +273,248 @@ def test_inspecionar_dados_preserva_imutabilidade_da_entrada() -> None:
     assert all(v == 0 for v in resumo_completo["nulos_por_campo"].values())
 
 
+def test_limpar_dados_normaliza_registros_validos_preservando_entrada(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    dados = [
+        {
+            "id_venda": " 10 ",
+            "data_venda": " 2024-02-01 ",
+            "cliente": " Ana Silva ",
+            "produto": " Notebook ",
+            "categoria": " Eletrônicos ",
+            "regiao": " Sudeste ",
+            "quantidade": " 2 ",
+            "preco_unitario": " 1200.50 ",
+        },
+        {
+            "id_venda": "11",
+            "data_venda": "2024-02-02",
+            "cliente": "Bruno Souza",
+            "produto": "Mouse",
+            "categoria": "Acessórios",
+            "regiao": "Sul",
+            "quantidade": "1",
+            "preco_unitario": "100.0",
+        },
+    ]
+    original = [dict(linha) for linha in dados]
+
+    resultado = mv.limpar_dados(dados)
+    capsys.readouterr()
+
+    assert resultado == [
+        {
+            "id_venda": 10,
+            "data_venda": "2024-02-01",
+            "cliente": "Ana Silva",
+            "produto": "Notebook",
+            "categoria": "Eletrônicos",
+            "regiao": "Sudeste",
+            "quantidade": 2,
+            "preco_unitario": 1200.5,
+        },
+        {
+            "id_venda": 11,
+            "data_venda": "2024-02-02",
+            "cliente": "Bruno Souza",
+            "produto": "Mouse",
+            "categoria": "Acessórios",
+            "regiao": "Sul",
+            "quantidade": 1,
+            "preco_unitario": 100.0,
+        },
+    ]
+    assert type(resultado[0]["id_venda"]) is int
+    assert type(resultado[0]["quantidade"]) is int
+    assert type(resultado[0]["preco_unitario"]) is float
+    assert dados == original
+
+
+def test_limpar_dados_descarta_malformados_e_reporta_motivos(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+    linhas = [
+        dict(base),
+        {**base, "quantidade": " "},
+        {**base, "preco_unitario": ""},
+        {**base, "quantidade": "2.5"},
+        {**base, "preco_unitario": "NaN"},
+        {**base, "id_venda": "inválido"},
+        {**base, "cliente": None},
+        {**base, "data_venda": "2024-02-30"},
+        {key: value for key, value in base.items() if key != "produto"},
+    ]
+
+    resultado = mv.limpar_dados(linhas)
+    relatorio = capsys.readouterr().out
+
+    assert len(resultado) == 1
+    assert "Registros Válidos: 1 | Registros Removidos: 8" in relatorio
+    assert "campo_ausente" in relatorio
+    assert "campo_textual_invalido" in relatorio
+    assert "data_venda_invalida" in relatorio
+    assert "id_venda_invalido" in relatorio
+    assert "quantidade_ausente" in relatorio
+    assert "preco_unitario_ausente" in relatorio
+    assert "quantidade_invalida" in relatorio
+    assert "preco_unitario_invalido" in relatorio
+    assert "'campo_ausente': 1" in relatorio
+    assert "'campo_textual_invalido': 1" in relatorio
+    assert "'data_venda_invalida': 1" in relatorio
+    assert "'id_venda_invalido': 1" in relatorio
+    assert "'quantidade_ausente': 1" in relatorio
+    assert "'preco_unitario_ausente': 1" in relatorio
+    assert "'quantidade_invalida': 1" in relatorio
+    assert "'preco_unitario_invalido': 1" in relatorio
+
+
+def test_limpar_dados_contabiliza_uma_razao_primaria_por_linha(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    linha = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "",
+        "preco_unitario": "",
+    }
+
+    assert mv.limpar_dados([linha]) == []
+    relatorio = capsys.readouterr().out
+    assert "Registros Válidos: 0 | Registros Removidos: 1" in relatorio
+    assert "'quantidade_ausente': 1" in relatorio
+    assert "'preco_unitario_ausente': 0" in relatorio
+
+
+def test_limpar_dados_prioriza_quantidade_antes_do_identificador(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    linha = {
+        "id_venda": "invalido",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "invalida",
+        "preco_unitario": "20.5",
+    }
+
+    assert mv.limpar_dados([linha]) == []
+    relatorio = capsys.readouterr().out
+    assert "'id_venda_invalido': 0" in relatorio
+    assert "'quantidade_invalida': 1" in relatorio
+
+
+@pytest.mark.parametrize(
+    ("campo", "valor", "motivo"),
+    [
+        ("quantidade", None, "quantidade_ausente"),
+        ("preco_unitario", None, "preco_unitario_ausente"),
+        ("preco_unitario", "   ", "preco_unitario_ausente"),
+        ("preco_unitario", "inf", "preco_unitario_invalido"),
+        ("data_venda", "   ", "data_venda_invalida"),
+        ("data_venda", "2024-1-10", "data_venda_invalida"),
+        ("cliente", "   ", "campo_textual_invalido"),
+    ],
+)
+def test_limpar_dados_classifica_campos_nulos_e_brancos(
+    campo: str,
+    valor: str | None,
+    motivo: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    linha: dict[str, str | None] = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+    linha[campo] = valor
+
+    assert mv.limpar_dados([linha]) == []
+    relatorio = capsys.readouterr().out
+    assert f"'{motivo}': 1" in relatorio
+
+
+def test_limpar_dados_classifica_campo_obrigatorio_ausente(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    linha = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+
+    assert mv.limpar_dados([linha]) == []
+    relatorio = capsys.readouterr().out
+    assert "'campo_ausente': 1" in relatorio
+
+
+def test_limpar_dados_lista_vazia_retorna_contadores_zero(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    assert mv.limpar_dados([]) == []
+    relatorio = capsys.readouterr().out
+    assert "Registros Válidos: 0 | Registros Removidos: 0" in relatorio
+    assert all(f"'{motivo}': 0" in relatorio for motivo in (
+        "campo_ausente",
+        "campo_textual_invalido",
+        "data_venda_invalida",
+        "id_venda_invalido",
+        "quantidade_ausente",
+        "preco_unitario_ausente",
+        "quantidade_invalida",
+        "preco_unitario_invalido",
+    ))
+
+
+def test_limpar_dados_totais_e_motivos_reconciliam(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+    linhas = [dict(base), {**base, "quantidade": "x"}, {**base, "preco_unitario": ""}]
+
+    resultado = mv.limpar_dados(linhas)
+    relatorio = capsys.readouterr().out
+
+    assert len(resultado) + 2 == len(linhas)
+    assert "Registros Válidos: 1 | Registros Removidos: 2" in relatorio
+    assert "'quantidade_invalida': 1" in relatorio
+    assert "'preco_unitario_ausente': 1" in relatorio
+
+
 def test_inspecionar_dados_lista_vazia_executa_sem_erro(
     capsys: pytest.CaptureFixture[str],
 ) -> None:

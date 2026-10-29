@@ -15,7 +15,7 @@ Rows are discarded if any expected schema field is absent; a text field is null;
 
 ## Reporting and accounting
 
-Prints valid and removed totals plus structured counts for primary rejection reasons: `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, and `preco_unitario_invalido`. When multiple issues apply, attribute the row once to the earliest reason by schema order. The function returns only the cleaned list. Valid plus removed equals input count; reason counts sum to removed count.
+Prints valid and removed totals plus structured counts for primary rejection reasons: `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, and `preco_unitario_invalido`. When multiple issues apply, attribute the row once to the earliest reason in validation order: missing fields; text fields (`data_venda`, `cliente`, `produto`, `categoria`, `regiao`); invalid date; quantity; price; identifier (converted after other fields, matching the established record construction order). The function returns only the cleaned list. Valid plus removed equals input count; reason counts sum to removed count.
 
 ## Edge behavior
 

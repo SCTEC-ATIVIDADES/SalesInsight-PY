@@ -45,11 +45,11 @@ Como analista, quero que registros com quantidade ou preço ausente ou inválido
 - Quantidade ou preço contendo somente espaços é considerado vazio após normalização.
 - Valores numéricos que não possam ser convertidos ao tipo requerido tornam o registro inválido; os demais registros continuam a ser processados.
 - A função trabalha sobre os registros de entrada sem alterar os valores da lista original.
-- A ausência de qualquer campo do esquema esperado (`id_venda`, `data_venda`, `cliente`, `produto`, `categoria`, `regiao`, `quantidade`, `preco_unitario`) torna a linha malformada e removida, contabilizada uma única vez pelo primeiro motivo detectado na ordem do esquema.
+- A ausência de qualquer campo do esquema esperado (`id_venda`, `data_venda`, `cliente`, `produto`, `categoria`, `regiao`, `quantidade`, `preco_unitario`) torna a linha malformada e removida, contabilizada uma única vez pelo primeiro motivo detectado na ordem de validação do esquema: campos ausentes, campos textuais (data, cliente, produto, categoria, região), quantidade, preço unitário e identificador.
 - Valores nulos ou vazios após remoção dos espaços em campos textuais obrigatórios tornam a linha malformada e removida; datas devem representar datas válidas no formato estabelecido pelo dataset (`YYYY-MM-DD`).
 - Identificador ausente ou não conversível para inteiro torna a linha malformada e removida.
 - Preços não finitos (`NaN`, infinito positivo ou negativo) são inválidos e removidos.
-- A linha removida deve ser contabilizada por um único motivo primário determinístico; totais por motivo devem somar o total de removidos.
+- A linha removida deve ser contabilizada por um único motivo primário determinístico, usando a ordem de validação descrita acima; totais por motivo devem somar o total de removidos.
 
 ## Requirements *(mandatory)*
 

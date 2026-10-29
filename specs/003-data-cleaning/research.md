@@ -14,7 +14,7 @@
 
 ## Decision 3: Rejection accounting and user report
 
-- **Decision**: Return only cleaned rows, as specified. Print aggregate valid/removed counts and structured primary-reason counts in the cleaning report. Categories are `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, and `preco_unitario_invalido`. A row failing multiple checks is removed once; select the first reason deterministically using schema order.
+- **Decision**: Return only cleaned rows, as specified. Print aggregate valid/removed counts and structured primary-reason counts in the cleaning report. Categories are `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, and `preco_unitario_invalido`. A row failing multiple checks is removed once; select the first reason deterministically in validation order: missing fields; text fields (`data_venda`, `cliente`, `produto`, `categoria`, `regiao`); invalid date; quantity; price; identifier (converted after other fields, matching the established record construction order).
 - **Rationale**: Preserves the requested list return contract and satisfies the constitution’s requirement for reason-level structured rejection accounting without adding dependencies.
 - **Alternatives considered**: Adding the reason map to the function return (rejected because the requested/example return is the cleaned list); only a scalar removed count (rejected because it loses the mandated reason detail).
 
