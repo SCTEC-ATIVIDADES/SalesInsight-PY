@@ -48,8 +48,8 @@ Nenhuma tarefa fundacional; estrutura e etapa de limpeza já existem.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T005 [P] Adicionar teste de processamento de 10.000 registros em `tests/test_modulo_vendas.py`; executar e confirmar todos os registros recebem campos derivados.
-- [ ] T006 [P] Executar validação quickstart (`pytest tests/test_modulo_vendas.py`, `pytest` e `python main.py`) conforme `specs/004-derived-fields/quickstart.md`.
+- [ ] T005 Adicionar teste com 10.000 registros em `tests/test_modulo_vendas.py`; verificar que saída contém exatamente 10.000 registros, todos têm `receita_total` e `faixa_preco`, e cada resultado corresponde ao cálculo esperado.
+- [ ] T006 Executar validação quickstart (`pytest tests/test_modulo_vendas.py`, `pytest` e `python main.py`) conforme `specs/004-derived-fields/quickstart.md`.
 
 ## Dependencies & Execution Order
 
@@ -58,7 +58,7 @@ Nenhuma tarefa fundacional; estrutura e etapa de limpeza já existem.
 - Setup e Foundational: sem tarefas; nada bloqueia início.
 - US1: independente; entregar primeiro como MVP.
 - US2: depende de T002, pois classificação consome `receita_total` calculada.
-- T005 valida escala após T002 e T004; T006 depende da suíte completa.
+- T005 valida escala após T002 e T004; T006 depende da suíte completa, incluindo T005.
 - Polish: validação final depende de T002, T004 e T005.
 
 ### Coverage
