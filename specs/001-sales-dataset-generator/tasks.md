@@ -22,17 +22,17 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 
 - **Root modules**: `gerador_dados.py` (geração independente do dataset), `modulo_vendas.py` (leitura/processamento do pipeline), `main.py`, `vendas.csv`, `requirements.txt` at repository root
 - **Tests**: `tests/test_modulo_vendas.py`
-- **Container & Docs**: `Dockerfile`, `docker-compose.yml`, `README.md`
+- **Environment, Container & Docs**: `.venv/` (local virtual environment ignored in `.gitignore` and `.dockerignore`), `Dockerfile`, `docker-compose.yml`, `README.md`
 
 ---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization, dependency pinning, and directory structure per `plan.md` and Constitution Principle V.
+**Purpose**: Project initialization, dependency pinning, local `.venv` & container isolation, and directory structure per `plan.md` and Constitution Principle V.
 
 - [X] T001 Create `requirements.txt` at repository root with pinned versions for `pandas`, `pytest`, and `Faker`
 - [X] T002 [P] Create `tests/` directory and initialize `tests/test_modulo_vendas.py` with pytest imports and module import scaffold
-- [X] T003 [P] Create `Dockerfile` and configure `docker-compose.yml` at repository root to run `python main.py` and `pytest` mounting project root volume
+- [X] T003 [P] Create `Dockerfile`, `docker-compose.yml`, `.gitignore`, and `.dockerignore` at repository root to support both Docker Compose (`python main.py` and `pytest`) and isolated local `.venv` execution (`python3 -m venv .venv`, ignoring `.venv/` in Git and Docker build context per `FR-010`)
 
 ---
 
@@ -112,7 +112,7 @@ description: "Task list for RF01 – Criar ou Carregar o Dataset de Vendas imple
 **Purpose**: Final dataset generation, documentation, and end-to-end validation per `quickstart.md` and Constitution Quality Gates.
 
 - [X] T014 Generate default `vendas.csv` at repository root using `gerar_dataset_sintetico("vendas.csv", n_registros=150, seed=42)` and verify `python main.py` and `pytest` pass with 100% green suite
-- [X] T015 [P] Update `README.md` at repository root documenting RF01 dataset structure, justification for `csv.DictReader` + `Faker('pt_BR')`, TDD workflow, and execution commands from `specs/001-sales-dataset-generator/quickstart.md`
+- [X] T015 [P] Update `README.md` at repository root documenting RF01 dataset structure, justification for `csv.DictReader` + `Faker('pt_BR')`, TDD workflow, local `.venv` setup (`python3 -m venv .venv`), and Docker Compose execution commands from `specs/001-sales-dataset-generator/quickstart.md`
 
 ---
 

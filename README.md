@@ -28,9 +28,11 @@ docker compose up --build
 docker compose run --rm app pytest -v
 ```
 
-## Execução Local (Python 3.11+)
+## Execução Local com Ambiente Virtual (`venv`)
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate  # Linux/macOS (No Windows: .venv\Scripts\activate)
 pip install -r requirements.txt
 python main.py
 pytest -v
