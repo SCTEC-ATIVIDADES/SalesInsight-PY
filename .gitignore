@@ -1,6 +1,11 @@
 .git/
 *.pyc
 __pycache__/
+.pytest_cache/
+.venv/
+venv/
+dist/
+*.egg-info/
 .env
 .env.local
 # .opencode/
