@@ -17,8 +17,9 @@ if __name__ == "__main__":
     mv.inspecionar_dados(dados_brutos)
     motivos_remocao: dict[str, int] = {}
     dados_limpos = mv.limpar_dados(dados_brutos, motivos_remocao)
+    dados_com_campos_derivados = mv.criar_campos_derivados(dados_limpos)
     metricas = {
-        "registros_validos": len(dados_limpos),
+        "registros_validos": len(dados_com_campos_derivados),
         "registros_removidos": len(dados_brutos) - len(dados_limpos),
         "motivos_remocao": motivos_remocao,
     }

@@ -54,6 +54,10 @@ def test_criar_campos_derivados_processa_10000_registros() -> None:
     assert len(resultado) == 10_000
     assert all("receita_total" in registro and "faixa_preco" in registro for registro in resultado)
     assert all(registro["receita_total"] == round(registro["quantidade"] * 123.456, 2) for registro in resultado)
+    assert all(
+        registro["faixa_preco"] == ("Baixo" if registro["receita_total"] < 500 else "Médio")
+        for registro in resultado
+    )
 
 
 def test_gerar_dataset_sintetico_cria_arquivo_e_cabecalho(tmp_path: Path) -> None:
