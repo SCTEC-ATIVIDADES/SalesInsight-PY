@@ -82,7 +82,7 @@
 - **Setup (Phase 1)**: No dependencies; verifies the existing Python/pytest environment.
 - **Foundational (Phase 2)**: Depends on setup verification; confirms existing schema and module conventions.
 - **User Stories (Phase 3+)**: Begin after the foundation. US1 precedes US2 because US2 extends its cleaning loop and report behavior.
-- **Polish (Phase 5)**: Depends on both stories being implemented. T009 (tests) and T012 (quickstart checks) are independent; T010/T011 also run independently but remain blocked until project export is available.
+- **Polish (Phase 5)**: Depends on both stories being implemented. T009 (tests) and T012 (quickstart checks) are independent; T010/T011 verify local and Docker end-to-end execution and generated output artifacts.
 
 ### User Story Dependencies
 
@@ -98,7 +98,7 @@
 ### Parallel Opportunities
 
 - No safe parallelism within US1 or US2 because tests and implementation touch the same files and are sequential under TDD.
-- After implementation, T009 and T012 can be performed independently; T009 runs the automated regression suites and T012 checks the documented behavior. T010 and T011 are mandatory quality gates but remain blocked until the existing export pipeline is implemented.
+- After implementation, T009 and T012 can be performed independently; T009 runs the automated regression suites and T012 checks the documented behavior. T010 and T011 independently verify local and Docker execution and generated exports.
 
 ---
 
@@ -136,10 +136,10 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 
 ## Phase 6: Convergence
 
-- [X] T013 Implement and integrate the complete `main.py` pipeline with `limpar_dados` and `exportar_resultados` in `modulo_vendas.py`; generate `outputs/metricas_resumo.csv` and `outputs/estatisticas.json` to satisfy Constitution V and unblock T010–T011 (CRITICAL; Constitution V; missing)
-- [X] T014 Install project dependencies from `requirements.txt` in the existing local `.venv` and run `.venv/bin/python main.py`; verify successful local execution and both output artifacts per T010. System-wide pip install was avoided due to PEP 668 (HIGH; T010; partial)
+- [X] T013 Integrate `limpar_dados` and `exportar_resultados` into `main.py`/`modulo_vendas.py`; generate the required `outputs/metricas_resumo.csv` and `outputs/estatisticas.json` for Constitution V (Constitution V)
+- [X] T014 Install project dependencies from `requirements.txt` in the existing local `.venv` and run `.venv/bin/python main.py`; verify successful local execution and both required output artifacts per T010. System-wide pip install was avoided due to PEP 668 (T010)
 
 ## Phase 7: Convergence
 
-- [ ] T015 Define and implement deterministic duplicate-row handling in `limpar_dados` in `modulo_vendas.py`, with tests covering duplicate criteria and reason accounting, or document an explicit scope decision that RF03 preserves duplicates (MEDIUM; Constitution IV; partial)
-- [ ] T016 Update the Constitution Check in `specs/003-data-cleaning/plan.md` and completed quality-gate task notes in `specs/003-data-cleaning/tasks.md` to record that local and Docker runs produced both required output files (LOW; plan: Constitution Check V; partial)
+- [X] T015 Preserve duplicate input rows in `limpar_dados` in `modulo_vendas.py`; deduplication is outside RF03, and repeated IDs are not sufficient evidence to reject a sale (Constitution IV; resolved by scope decision)
+- [X] T016 Update the Constitution Check in `specs/003-data-cleaning/plan.md` and completed quality-gate task notes in `specs/003-data-cleaning/tasks.md` to record successful local and Docker runs and generation of both required output files (plan: Constitution Check V)
