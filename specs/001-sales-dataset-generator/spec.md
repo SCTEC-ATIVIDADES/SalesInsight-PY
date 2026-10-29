@@ -8,6 +8,12 @@
 
 **Input**: User description: "RF01 – Criar ou Carregar o Dataset de Vendas: O projeto deverá ter um dataset de vendas. O estudante pode gerar o dataset sinteticamente no próprio código (recomendado para facilitar a reprodução) ou utilizar um arquivo CSV real. Opção B – Usar IA para gerar o CSV: O estudante pode usar uma IA e solicitar que gere o arquivo CSV, desde que contenha ao menos as colunas: data, produto, categoria, quantidade, preço e região. O mínimo de registros é 100. Para gerar os dados do csv, vamos usar uma lib para gerar dados reais/mockados/fakes. A geração dos dados fica em um arquivo/módulo independente."
 
+## Clarifications
+
+### Session 2026-10-28
+
+- Q: Como o ambiente virtual Python (`venv`) deve se relacionar com o ambiente padronizado do projeto? → A: Option A - Manter Docker e adicionar suporte oficial a `.venv` (`python -m venv .venv`) para execução local isolada.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Geração Automatizada do Dataset de Vendas com Dados Realistas e Ruídos Controlados (Priority: P1)
@@ -74,6 +80,7 @@ Como usuário executando o pipeline, preciso receber mensagens claras e um compo
 - **FR-007**: O sistema DEVE disponibilizar uma rotina parametrizada para carregar os registros de qualquer arquivo CSV de vendas compatível a partir de um caminho relativo ou informado, retornando uma coleção estruturada de registros indexados pelos nomes das colunas do cabeçalho.
 - **FR-008**: Nenhuma rotina de geração ou carregamento DEVE depender de caminhos absolutos fixos (hardcoded), devendo operar corretamente a partir da raiz do projeto ou de caminhos fornecidos por parâmetro.
 - **FR-009**: A rotina de carregamento DEVE tratar de forma segura e resiliente cenários de arquivo inexistente ou inacessível, emitindo mensagem clara de diagnóstico sem causar falha abrupta não tratada.
+- **FR-010**: O projeto DEVE suportar e documentar a execução local isolada via ambiente virtual Python nativo (`python3 -m venv .venv` com instalação de `requirements.txt`), operando em complementaridade ao ambiente containerizado Docker Compose e garantindo que `.venv/` seja ignorado no versionamento e no contexto de build do container.
 
 ### Key Entities *(include if feature involves data)*
 
