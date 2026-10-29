@@ -421,6 +421,33 @@ def test_limpar_dados_prioriza_quantidade_antes_do_identificador(
     assert "'quantidade_invalida': 1" in relatorio
 
 
+def test_limpar_dados_valida_datas_invalidas_em_lote(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+    linhas = [
+        dict(base),
+        {**base, "data_venda": "2024-02-30"},
+        {**base, "data_venda": "2024-1-10"},
+    ]
+
+    resultado = mv.limpar_dados(linhas)
+    relatorio = capsys.readouterr().out
+
+    assert len(resultado) == 1
+    assert "Registros Válidos: 1 | Registros Removidos: 2" in relatorio
+    assert "'data_venda_invalida': 2" in relatorio
+
+
 @pytest.mark.parametrize(
     ("campo", "valor", "motivo"),
     [

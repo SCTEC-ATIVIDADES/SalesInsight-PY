@@ -68,7 +68,7 @@
 
 **Purpose**: Verify the integrated cleaning stage and project regression suite.
 
-- [X] T009 [P] Run focused and full pytest suites in the repository; `docker compose run --rm app python -m pytest` and `.venv/bin/python -m pytest` both pass (29 tests after exact-duplicate coverage was added).
+- [X] T009 [P] Run focused and full pytest suites in the repository; `docker compose run --rm app python -m pytest` and `.venv/bin/python -m pytest` both pass (30 tests after pandas date-validation coverage was added).
 - [X] T010 From the repository root, run `.venv/bin/python main.py`; verify successful exit and existence of `outputs/metricas_resumo.csv` and `outputs/estatisticas.json`. Both files were generated with 137 valid rows, 14 removals, including one exact duplicate; `.venv` was used because the system Python is externally managed (PEP 668).
 - [X] T011 From the repository root, run `docker compose up --build --exit-code-from app`; verify successful exit and both expected output files under the mounted `outputs/` directory. Both files were generated.
 - [X] T012 [P] Follow `specs/003-data-cleaning/quickstart.md`; verified normalization, numeric conversions, invalid-row reason output, empty-list zero counters, and input preservation using the passing focused tests
@@ -154,4 +154,4 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 
 ## Phase 10: Convergence
 
-- [ ] T019 Use the required `pandas` dependency in a meaningful, explicit part of the RF03 cleaning pipeline in `modulo_vendas.py`, retaining the mandated clear list/dictionary iteration and validating that behavior in `tests/test_modulo_vendas.py` (CRITICAL; Constitution II; contradicts)
+- [X] T019 Use `pandas.to_datetime` for batch date validation in `modulo_vendas.py`; preserve explicit list/dictionary iteration for rejection reasons, conversions, deduplication, and output order; verify batch invalid-date handling in `tests/test_modulo_vendas.py` (Constitution II)

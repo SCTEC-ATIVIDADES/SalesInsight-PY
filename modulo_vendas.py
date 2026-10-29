@@ -7,6 +7,8 @@ import math
 import os
 from typing import Any
 
+import pandas as pd
+
 from gerador_dados import (
     CABECALHO_VENDAS,
     CATEGORIAS,
@@ -109,6 +111,21 @@ def limpar_dados(
         "preco_unitario",
     ]
     campos_textuais = ["data_venda", "cliente", "produto", "categoria", "regiao"]
+    datas_candidatas = [
+        linha["data_venda"].strip()
+        for linha in dados_brutos
+        if isinstance(linha.get("data_venda"), str) and linha["data_venda"].strip()
+    ]
+    datas_parseadas = pd.to_datetime(
+        pd.Series(datas_candidatas, dtype="string"),
+        format="%Y-%m-%d",
+        errors="coerce",
+        exact=True,
+    )
+    datas_validas = {
+        data.strftime("%Y-%m-%d")
+        for data in datas_parseadas.dropna().tolist()
+    }
 
     for linha in dados_brutos:
         motivo: str | None = None
@@ -136,13 +153,8 @@ def limpar_dados(
                     break
                 textos[campo] = valor.strip()
 
-        if motivo is None:
-            try:
-                data_validada = datetime.strptime(textos["data_venda"], "%Y-%m-%d")
-                if data_validada.strftime("%Y-%m-%d") != textos["data_venda"]:
-                    motivo = "data_venda_invalida"
-            except ValueError:
-                motivo = "data_venda_invalida"
+        if motivo is None and textos["data_venda"] not in datas_validas:
+            motivo = "data_venda_invalida"
 
         if motivo is None:
             valor_qtd = linha["quantidade"]

@@ -20,6 +20,7 @@
 
 ## Technical context confirmation
 
-- Python 3.11+, `pytest` already pinned in `requirements.txt`; no additional dependency or storage required.
+- Python 3.11+, `pandas` e `pytest` já fixados em `requirements.txt`; sem dependências ou armazenamento adicionais.
+- `pandas.to_datetime` valida datas em lote com `errors="coerce"`; o laço explícito continua decidindo motivos de rejeição, conversões, deduplicação e ordem da saída.
 - Existing input schema and test location are confirmed by `gerador_dados.py`, `modulo_vendas.py`, and `tests/test_modulo_vendas.py`.
 - No unresolved technical clarification remains.

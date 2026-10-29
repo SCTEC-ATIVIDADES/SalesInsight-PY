@@ -12,7 +12,7 @@ Implementar `limpar_dados` como função reutilizável em `modulo_vendas.py`: cr
 
 **Language/Version**: Python 3.11+
 
-**Primary Dependencies**: Biblioteca padrão do Python e `pytest` já presente no projeto; nenhuma dependência nova.
+**Primary Dependencies**: `pandas` e `pytest` já presentes e fixados em `requirements.txt`, além da biblioteca padrão do Python; nenhuma dependência nova adicionada.
 
 **Storage**: N/A; transformação em memória sobre lista de dicionários carregada de `vendas.csv`.
 
@@ -35,12 +35,12 @@ Implementar `limpar_dados` como função reutilizável em `modulo_vendas.py`: cr
 | Princípio da Constituição | Status (Pré-Pesquisa) | Status (Pós-Design) | Evidência / Atendimento |
 |---------------------------|-----------------------|---------------------|-------------------------|
 | I. Modularização e Separação de Responsabilidades | PASS | PASS | Lógica isolada em `modulo_vendas.py`; `main.py` permanece orquestrador; função com docstring, tipagem de entrada e retorno explícitas. |
-| II. Processamento Explícito e Estruturas Nativas com Pandas | PASS | PASS | Transformação implementável por laço explícito sobre listas e dicionários; sem abstrações opacas nem nova biblioteca. |
+| II. Processamento Explícito e Estruturas Nativas com Pandas | PASS | PASS | `pandas.to_datetime` valida datas em lote; laço explícito sobre listas e dicionários mantém claras conversões, rejeições, deduplicação e ordem. |
 | III. Desenvolvimento Orientado a Testes (TDD) | PASS | PASS | Testes em `tests/test_modulo_vendas.py` devem preceder implementação e cobrir válidos, valores ausentes/brancos/inválidos, contagens, ordem, entrada imutável e lista vazia. |
 | IV. Qualidade, Limpeza e Tratamento Resiliente | PASS | PASS | Ausências, valores inválidos, linhas malformadas e cópias exatas após normalização são rejeitadas deterministicamente; relatório imprime contagens estruturadas por motivo, com atribuição única por linha e totais reconciliáveis. Registros distintos com mesmo ID permanecem válidos. |
 | V. Ambiente Padronizado e Rastreabilidade | PASS | PASS | Nenhuma dependência nova para RF03; `.venv` e Docker Compose executam a suíte e `main.py`. T009–T011 verificaram todos os quality gates e a geração dos dois artefatos em `outputs/`. |
 
-**Gate Evaluation**: Os cinco princípios foram verificados. Testes passaram via pytest local e Docker Compose; `main.py` gerou `outputs/metricas_resumo.csv` e `outputs/estatisticas.json` localmente e via Docker. Cópias exatas após normalização são removidas deterministicamente, mantendo a primeira ocorrência e contabilizando `registro_duplicado`; registros distintos com mesmo ID são preservados. A função retorna somente a lista limpa; totais e contadores estruturados por motivo são apresentados no relatório impresso e disponibilizados para exportação.
+**Gate Evaluation**: Os cinco princípios foram verificados; validação de datas usa pandas em lote, enquanto o laço explícito preserva a auditabilidade didática. Testes passaram via pytest local e Docker Compose; `main.py` gerou `outputs/metricas_resumo.csv` e `outputs/estatisticas.json` localmente e via Docker. Cópias exatas após normalização são removidas deterministicamente, mantendo a primeira ocorrência e contabilizando `registro_duplicado`; registros distintos com mesmo ID são preservados. A função retorna somente a lista limpa; totais e contadores estruturados por motivo são apresentados no relatório impresso e disponibilizados para exportação.
 ## Project Structure
 
 ### Documentation (this feature)
