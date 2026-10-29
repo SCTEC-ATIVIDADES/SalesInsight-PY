@@ -49,6 +49,7 @@ Como analista, quero que registros com quantidade ou preço ausente ou inválido
 - Valores nulos ou vazios após remoção dos espaços em campos textuais obrigatórios tornam a linha malformada e removida; datas devem representar datas válidas no formato estabelecido pelo dataset (`YYYY-MM-DD`).
 - Identificador ausente ou não conversível para inteiro torna a linha malformada e removida.
 - Preços não finitos (`NaN`, infinito positivo ou negativo) são inválidos e removidos.
+- Duplicatas exatas são identificadas após normalizar e converter os campos; somente a primeira ocorrência permanece, e cada repetição é removida uma vez com motivo `registro_duplicado`. Linhas distintas que compartilham o identificador são preservadas.
 - A linha removida deve ser contabilizada por um único motivo primário determinístico, usando a ordem de validação descrita acima; totais por motivo devem somar o total de removidos.
 
 ## Requirements *(mandatory)*
@@ -61,8 +62,8 @@ Como analista, quero que registros com quantidade ou preço ausente ou inválido
 - **FR-004**: O sistema DEVE converter a quantidade de cada registro elegível para número inteiro e o preço unitário para número decimal.
 - **FR-005**: O sistema DEVE remover registros cujos valores de quantidade ou preço unitário não possam ser convertidos aos tipos requeridos, incluindo preço não finito, com motivo específico distinto para quantidade inválida e preço inválido, sem interromper o processamento da coleção.
 - **FR-006**: Para registros aceitos, o sistema DEVE preservar os campos da venda e normalizar o identificador para inteiro; campos ausentes, identificador não conversível, campos textuais obrigatórios nulos ou vazios após normalização, ou data vazia/inválida após normalização tornam a linha malformada e removida.
-- **FR-007**: O sistema DEVE informar no relatório a quantidade de registros válidos e removidos, com contagens estruturadas por um único motivo primário por linha rejeitada, e devolver os registros válidos na ordem de entrada.
-- **FR-008**: O sistema DEVE deixar a coleção original inalterada durante a limpeza.
+- **FR-007**: O sistema DEVE informar no relatório a quantidade de registros válidos e removidos, com contagens estruturadas por um único motivo primário por linha rejeitada, disponibilizar os contadores para exportação e devolver os registros válidos na ordem de entrada, removendo ocorrências duplicadas exatas após normalização e preservando a primeira.
+- **FR-008**: O sistema DEVE deixar a coleção original inalterada durante a limpeza. Duas linhas são duplicatas quando todos os oito campos normalizados são iguais; igualdade isolada de `id_venda` não caracteriza duplicidade.
 - **FR-009**: Uma coleção vazia DEVE ser processada sem erro e produzir zero registros válidos, zero removidos e contadores de motivos iguais a zero.
 
 ### Key Entities *(include if data involved)*
@@ -81,6 +82,7 @@ Como analista, quero que registros com quantidade ou preço ausente ou inválido
 - **SC-004**: A coleção original permanece inalterada após o processamento, inclusive quando registros inválidos são encontrados.
 - **SC-005**: Uma coleção vazia resulta em zero registros válidos e zero removidos, todos os contadores por motivo em zero, sem falhas.
 - **SC-006**: Para qualquer entrada, a soma dos contadores estruturados por motivo é exatamente igual à quantidade de registros removidos.
+- **SC-007**: Para cada grupo de linhas equivalentes nos oito campos normalizados, exatamente uma ocorrência é preservada, mantendo a ordem da primeira ocorrência.
 
 ## Assumptions
 

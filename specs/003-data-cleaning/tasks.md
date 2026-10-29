@@ -68,8 +68,8 @@
 
 **Purpose**: Verify the integrated cleaning stage and project regression suite.
 
-- [X] T009 [P] Run focused and full pytest suites in the repository; `docker compose run --rm app python -m pytest` and `.venv/bin/python -m pytest` both pass (25 tests).
-- [X] T010 From the repository root, run `.venv/bin/python main.py`; verify successful exit and existence of `outputs/metricas_resumo.csv` and `outputs/estatisticas.json`. Both files were generated; `.venv` was used because the system Python is externally managed (PEP 668).
+- [X] T009 [P] Run focused and full pytest suites in the repository; `docker compose run --rm app python -m pytest` and `.venv/bin/python -m pytest` both pass (29 tests after exact-duplicate coverage was added).
+- [X] T010 From the repository root, run `.venv/bin/python main.py`; verify successful exit and existence of `outputs/metricas_resumo.csv` and `outputs/estatisticas.json`. Both files were generated with 137 valid rows, 14 removals, including one exact duplicate; `.venv` was used because the system Python is externally managed (PEP 668).
 - [X] T011 From the repository root, run `docker compose up --build --exit-code-from app`; verify successful exit and both expected output files under the mounted `outputs/` directory. Both files were generated.
 - [X] T012 [P] Follow `specs/003-data-cleaning/quickstart.md`; verified normalization, numeric conversions, invalid-row reason output, empty-list zero counters, and input preservation using the passing focused tests
 
@@ -146,4 +146,4 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 
 ## Phase 8: Convergence
 
-- [ ] T017 Replace the preserve-duplicates behavior with deterministic removal of exact duplicate sales rows in `limpar_dados` in `modulo_vendas.py`; add a structured `registro_duplicado` rejection count and tests in `tests/test_modulo_vendas.py` proving RF01's injected duplicate is removed once, unique rows remain ordered, and totals reconcile (CRITICAL; Constitution IV; US2; contradicts)
+- [X] T017 Replace the preserve-duplicates behavior with deterministic removal of exact duplicate sales rows in `limpar_dados` in `modulo_vendas.py`; add a structured `registro_duplicado` rejection count and tests in `tests/test_modulo_vendas.py` proving duplicate rows are removed once after normalization, unique rows remain ordered, and totals reconcile (Constitution IV; US2)

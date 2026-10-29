@@ -8,8 +8,8 @@
 
 ## Decision 2: Row transformation and source preservation
 
-- **Decision**: Construct a fresh cleaned dictionary for each accepted record, preserving input order and trimming the text fields in the existing eight-column sales schema. Convert `id_venda` to integer as shown in the provided example; if its conversion fails, reject the malformed row rather than aborting the collection.
-- **Rationale**: Follows the example and established dataset schema, ensures a stable downstream record shape, and protects raw input from mutation.
+- **Decision**: Construct a fresh cleaned dictionary for each accepted record, preserving input order and trimming the text fields in the existing eight-column sales schema. Remove exact duplicates after normalization using equality across all eight output fields; keep the first occurrence. Repeated IDs with otherwise different fields are not duplicates. Convert `id_venda` to integer as shown in the provided example; if its conversion fails, reject the malformed row rather than aborting the collection.
+- **Rationale**: Follows the example and established dataset schema, ensures a stable downstream record shape, protects raw input from mutation, and resolves the deliberate exact duplicate inserted by the dataset generator without conflating distinct sales that share an ID.
 - **Alternatives considered**: Mutating source dictionaries (rejected by the feature’s data-preservation expectation); retaining the identifier as text (rejected because the example explicitly converts it).
 
 ## Decision 3: Rejection accounting and user report

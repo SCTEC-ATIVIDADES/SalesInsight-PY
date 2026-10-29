@@ -489,6 +489,7 @@ def test_limpar_dados_lista_vazia_retorna_contadores_zero(
         "preco_unitario_ausente",
         "quantidade_invalida",
         "preco_unitario_invalido",
+        "registro_duplicado",
     ))
 
 
@@ -516,7 +517,7 @@ def test_limpar_dados_totais_e_motivos_reconciliam(
     assert "'preco_unitario_ausente': 1" in relatorio
 
 
-def test_limpar_dados_preserva_registros_duplicados(
+def test_limpar_dados_remove_duplicatas_exatas_e_reporta_motivo(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     linha = {
@@ -530,15 +531,91 @@ def test_limpar_dados_preserva_registros_duplicados(
         "preco_unitario": "20.5",
     }
 
-    resultado = mv.limpar_dados([dict(linha), dict(linha)])
-    capsys.readouterr()
+    dados = [dict(linha), dict(linha), {**linha, "produto": "Mouse"}]
+    resultado = mv.limpar_dados(dados)
+    relatorio = capsys.readouterr().out
 
     assert len(resultado) == 2
-    assert resultado[0] == resultado[1]
+    assert resultado[0]["produto"] == "Notebook"
+    assert resultado[1]["produto"] == "Mouse"
+    assert "Registros Válidos: 2 | Registros Removidos: 1" in relatorio
+    assert "'registro_duplicado': 1" in relatorio
+
+
+def test_limpar_dados_deduplica_apos_normalizar_textos(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+    repetido_com_espacos = {**base, "produto": " Notebook "}
+
+    resultado = mv.limpar_dados([base, repetido_com_espacos])
+    relatorio = capsys.readouterr().out
+
+    assert len(resultado) == 1
+    assert "Registros Válidos: 1 | Registros Removidos: 1" in relatorio
+    assert "'registro_duplicado': 1" in relatorio
+
+
+def test_limpar_dados_registros_unicos_nao_sao_duplicatas_por_id(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    base = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+
+    resultado = mv.limpar_dados([base, {**base, "produto": "Mouse"}])
+    relatorio = capsys.readouterr().out
+
+    assert len(resultado) == 2
+    assert "Registros Válidos: 2 | Registros Removidos: 0" in relatorio
+    assert "'registro_duplicado': 0" in relatorio
+
+
+def test_limpar_dados_expoe_motivos_estruturados_para_integracao(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    linha = {
+        "id_venda": "1",
+        "data_venda": "2024-01-10",
+        "cliente": "Ana Silva",
+        "produto": "Notebook",
+        "categoria": "Eletrônicos",
+        "regiao": "Sudeste",
+        "quantidade": "2",
+        "preco_unitario": "20.5",
+    }
+    motivos: dict[str, int] = {}
+
+    resultado = mv.limpar_dados([dict(linha), dict(linha)], motivos)
+    capsys.readouterr()
+
+    assert len(resultado) == 1
+    assert motivos["registro_duplicado"] == 1
+    assert sum(motivos.values()) == 1
 
 
 def test_exportar_resultados_cria_arquivos_estruturados(tmp_path: Path) -> None:
-    metricas = {"registros_validos": 1, "registros_removidos": 2, "motivos_remocao": {"quantidade_invalida": 2}}
+    metricas = {
+        "registros_validos": 1,
+        "registros_removidos": 2,
+        "motivos_remocao": {"quantidade_invalida": 2, "registro_duplicado": 1},
+    }
 
     mv.exportar_resultados(metricas, pasta_saida=tmp_path)
 
@@ -551,7 +628,7 @@ def test_exportar_resultados_cria_arquivos_estruturados(tmp_path: Path) -> None:
             ["Métrica", "Valor"],
             ["registros_validos", "1"],
             ["registros_removidos", "2"],
-            ["motivos_remocao", "{\"quantidade_invalida\": 2}"],
+            ["motivos_remocao", "{\"quantidade_invalida\": 2, \"registro_duplicado\": 1}"],
         ]
     dados_json = json.loads(caminho_json.read_text(encoding="utf-8"))
     assert dados_json == {"metricas_gerais": metricas}

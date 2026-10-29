@@ -23,9 +23,9 @@ A newly constructed record retaining the eight fields above in their established
 
 - `validos`: number of accepted records.
 - `removidos`: number of rejected input records; each rejected row contributes exactly one.
-- `motivos_remocao`: structured counts attributed to one primary reason per rejected row, printed with the cleaning summary: `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, or `preco_unitario_invalido`.
+- `motivos_remocao`: structured counts attributed to one primary reason per rejected row, printed with the cleaning summary: `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, `preco_unitario_invalido`, or `registro_duplicado`.
 - Invariant: `validos + removidos == total de entradas`; reason counts sum to `removidos`.
 
 ## Relationships and lifecycle
 
-Each raw record is evaluated once and results in exactly one clean record or one rejection entry. The report summarizes this transformation. An empty input yields empty output and zero counts for every reason. Dates must be valid `YYYY-MM-DD` calendar dates, and unit price must be finite.
+Each raw record is evaluated once and results in exactly one clean record or one rejection entry. Exact duplicate normalized records retain the first occurrence; later copies are rejected as `registro_duplicado`. The report summarizes this transformation. An empty input yields empty output and zero counts for every reason. Dates must be valid `YYYY-MM-DD` calendar dates, and unit price must be finite.

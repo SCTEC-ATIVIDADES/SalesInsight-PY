@@ -32,5 +32,5 @@
 ## Notes
 
 - All 16 validation items reviewed and passed; spec was later refined to define malformed fields, valid dates, finite prices, and reason-count invariants.
-- Requirements address numeric conversions and removal, text/date validation, whitespace normalization, valid/removed reporting, primary reason counts, input preservation, and empty input.
+- Requirements address numeric conversions and removal, text/date validation, whitespace normalization, exact-duplicate handling, valid/removed reporting, primary reason counts, input preservation, and empty input.
 - Spec refinements completed after the initial review; re-run checklist validation before `/speckit.plan` or implementation.

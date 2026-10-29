@@ -80,8 +80,11 @@ def inspecionar_dados(
     }
 
 
-def limpar_dados(dados_brutos: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Normaliza registros de venda e descarta linhas ausentes ou inválidas."""
+def limpar_dados(
+    dados_brutos: list[dict[str, Any]],
+    resumo_remocao: dict[str, int] | None = None,
+) -> list[dict[str, Any]]:
+    """Normaliza registros de venda, descartando linhas inválidas e duplicatas."""
     dados_limpos: list[dict[str, Any]] = []
     motivos_remocao = {
         "campo_ausente": 0,
@@ -92,7 +95,9 @@ def limpar_dados(dados_brutos: list[dict[str, Any]]) -> list[dict[str, Any]]:
         "preco_unitario_ausente": 0,
         "quantidade_invalida": 0,
         "preco_unitario_invalido": 0,
+        "registro_duplicado": 0,
     }
+    registros_vistos: set[tuple[Any, ...]] = set()
     campos_esperados = [
         "id_venda",
         "data_venda",
@@ -171,18 +176,23 @@ def limpar_dados(dados_brutos: list[dict[str, Any]]) -> list[dict[str, Any]]:
             motivos_remocao["id_venda_invalido"] += 1
             continue
 
-        dados_limpos.append(
-            {
-                "id_venda": id_venda,
-                "data_venda": textos["data_venda"],
-                "cliente": textos["cliente"],
-                "produto": textos["produto"],
-                "categoria": textos["categoria"],
-                "regiao": textos["regiao"],
-                "quantidade": quantidade,
-                "preco_unitario": preco_unitario,
-            }
-        )
+        registro_limpo = {
+            "id_venda": id_venda,
+            "data_venda": textos["data_venda"],
+            "cliente": textos["cliente"],
+            "produto": textos["produto"],
+            "categoria": textos["categoria"],
+            "regiao": textos["regiao"],
+            "quantidade": quantidade,
+            "preco_unitario": preco_unitario,
+        }
+        chave_registro = tuple(registro_limpo[campo] for campo in campos_esperados)
+        if chave_registro in registros_vistos:
+            motivos_remocao["registro_duplicado"] += 1
+            continue
+
+        registros_vistos.add(chave_registro)
+        dados_limpos.append(registro_limpo)
 
     removidos = len(dados_brutos) - len(dados_limpos)
     print("\n=== RELATÓRIO DE LIMPEZA ===")
@@ -191,6 +201,8 @@ def limpar_dados(dados_brutos: list[dict[str, Any]]) -> list[dict[str, Any]]:
         f"Registros Removidos: {removidos}"
     )
     print(f"Motivos de Remoção: {motivos_remocao}")
+    if resumo_remocao is not None:
+        resumo_remocao.update(motivos_remocao)
     return dados_limpos
 
 
@@ -206,7 +218,7 @@ def exportar_resultados(
         json.dump({"metricas_gerais": metricas}, arquivo_json, indent=4, ensure_ascii=False)
 
     with open(caminho_csv, mode="w", encoding="utf-8", newline="") as arquivo_csv:
-        escritor = csv.writer(arquivo_csv)
+        escritor = csv.writer(arquivo_csv, lineterminator="\n")
         escritor.writerow(["Métrica", "Valor"])
         for metrica, valor in metricas.items():
             escritor.writerow(

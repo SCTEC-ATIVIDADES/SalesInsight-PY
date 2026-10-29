@@ -15,10 +15,12 @@ if __name__ == "__main__":
     dados_brutos = mv.carregar_csv(arquivo_dados)
     print(f"[INFO] Registros brutos carregados: {len(dados_brutos)}")
     mv.inspecionar_dados(dados_brutos)
-    dados_limpos = mv.limpar_dados(dados_brutos)
+    motivos_remocao: dict[str, int] = {}
+    dados_limpos = mv.limpar_dados(dados_brutos, motivos_remocao)
     metricas = {
         "registros_validos": len(dados_limpos),
         "registros_removidos": len(dados_brutos) - len(dados_limpos),
+        "motivos_remocao": motivos_remocao,
     }
     mv.exportar_resultados(metricas)
 

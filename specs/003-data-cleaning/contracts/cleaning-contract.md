@@ -5,7 +5,7 @@
 
 ## Public function
 
-`limpar_dados(dados_brutos)` accepts an ordered list of raw sales dictionaries and returns a list of cleaned sales dictionaries. It does not mutate the input and prints an aggregate cleaning report.
+`limpar_dados(dados_brutos, resumo_remocao=None)` accepts an ordered list of raw sales dictionaries and returns a list of cleaned sales dictionaries. It does not mutate the input, prints an aggregate cleaning report, and optionally updates the supplied reason-count mapping for downstream export.
 
 ## Input and output
 
@@ -15,8 +15,8 @@ Rows are discarded if any expected schema field is absent; a text field is null;
 
 ## Reporting and accounting
 
-Prints valid and removed totals plus structured counts for primary rejection reasons: `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, and `preco_unitario_invalido`. When multiple issues apply, attribute the row once to the earliest reason in validation order: missing fields; text fields (`data_venda`, `cliente`, `produto`, `categoria`, `regiao`); invalid date; quantity; price; identifier (converted after other fields, matching the established record construction order). The function returns only the cleaned list. Valid plus removed equals input count; reason counts sum to removed count.
+Prints valid and removed totals plus structured counts for primary rejection reasons: `campo_ausente`, `campo_textual_invalido`, `data_venda_invalida`, `id_venda_invalido`, `quantidade_ausente`, `preco_unitario_ausente`, `quantidade_invalida`, `preco_unitario_invalido`, and `registro_duplicado`. When multiple issues apply, attribute the row once to the earliest reason in validation order: missing fields; text fields (`data_venda`, `cliente`, `produto`, `categoria`, `regiao`); invalid date; quantity; price; identifier (converted after other fields, matching the established record construction order). Exact duplicates are determined by equality of all eight normalized output fields; retain the first occurrence and reject each later copy once. Rows sharing only `id_venda` remain distinct. The function returns only the cleaned list. When supplied, `resumo_remocao` is filled with all reason counters without replacing existing mapping identity. Valid plus removed equals input count; reason counts sum to removed count.
 
 ## Edge behavior
 
-An empty input returns an empty cleaned list and reports zero valid and zero removed. Input dictionaries and their values remain unchanged.
+An empty input returns an empty cleaned list and reports zero valid and zero removed, with every reason counter at zero. Exact duplicates after normalization retain the first occurrence and count each later copy as `registro_duplicado`. Input dictionaries and their values remain unchanged.
