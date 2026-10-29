@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import json
 from pathlib import Path
 import sys
 import pytest
@@ -513,6 +514,26 @@ def test_limpar_dados_totais_e_motivos_reconciliam(
     assert "Registros Válidos: 1 | Registros Removidos: 2" in relatorio
     assert "'quantidade_invalida': 1" in relatorio
     assert "'preco_unitario_ausente': 1" in relatorio
+
+
+def test_exportar_resultados_cria_arquivos_estruturados(tmp_path: Path) -> None:
+    metricas = {"registros_validos": 1, "registros_removidos": 2, "motivos_remocao": {"quantidade_invalida": 2}}
+
+    mv.exportar_resultados(metricas, pasta_saida=tmp_path)
+
+    caminho_csv = tmp_path / "metricas_resumo.csv"
+    caminho_json = tmp_path / "estatisticas.json"
+    assert caminho_csv.exists()
+    assert caminho_json.exists()
+    with open(caminho_csv, encoding="utf-8", newline="") as arquivo:
+        assert list(csv.reader(arquivo)) == [
+            ["Métrica", "Valor"],
+            ["registros_validos", "1"],
+            ["registros_removidos", "2"],
+            ["motivos_remocao", "{\"quantidade_invalida\": 2}"],
+        ]
+    dados_json = json.loads(caminho_json.read_text(encoding="utf-8"))
+    assert dados_json == {"metricas_gerais": metricas}
 
 
 def test_inspecionar_dados_lista_vazia_executa_sem_erro(

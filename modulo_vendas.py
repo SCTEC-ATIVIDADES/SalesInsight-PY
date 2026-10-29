@@ -2,6 +2,7 @@
 
 import csv
 from datetime import datetime
+import json
 import math
 import os
 from typing import Any
@@ -191,4 +192,24 @@ def limpar_dados(dados_brutos: list[dict[str, Any]]) -> list[dict[str, Any]]:
     )
     print(f"Motivos de Remoção: {motivos_remocao}")
     return dados_limpos
+
+
+def exportar_resultados(
+    metricas: dict[str, Any], pasta_saida: str | os.PathLike[str] = "outputs"
+) -> None:
+    """Exporta métricas gerais para arquivos CSV e JSON."""
+    os.makedirs(pasta_saida, exist_ok=True)
+    caminho_json = os.path.join(pasta_saida, "estatisticas.json")
+    caminho_csv = os.path.join(pasta_saida, "metricas_resumo.csv")
+
+    with open(caminho_json, mode="w", encoding="utf-8") as arquivo_json:
+        json.dump({"metricas_gerais": metricas}, arquivo_json, indent=4, ensure_ascii=False)
+
+    with open(caminho_csv, mode="w", encoding="utf-8", newline="") as arquivo_csv:
+        escritor = csv.writer(arquivo_csv)
+        escritor.writerow(["Métrica", "Valor"])
+        for metrica, valor in metricas.items():
+            escritor.writerow(
+                [metrica, json.dumps(valor, ensure_ascii=False) if isinstance(valor, dict) else valor]
+            )
 
