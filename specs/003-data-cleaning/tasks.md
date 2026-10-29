@@ -150,4 +150,4 @@ Task: Validate documented quickstart scenarios against the implementation (T012)
 
 ## Phase 9: Convergence
 
-- [ ] T018 Correct the stale duplicate-preservation statement in `specs/003-data-cleaning/plan.md` Constitution Check and Gate Evaluation to match FR-007/FR-008, Constitution IV, and the implemented exact-duplicate rejection behavior (HIGH; plan: Constitution Check IV; contradicts)
+- [X] T018 Correct the stale duplicate-preservation statement in `specs/003-data-cleaning/plan.md` Constitution Check and Gate Evaluation to match FR-007/FR-008, Constitution IV, and the implemented exact-duplicate rejection behavior (plan: Constitution Check IV)

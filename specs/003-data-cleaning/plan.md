@@ -40,7 +40,7 @@ Implementar `limpar_dados` como função reutilizável em `modulo_vendas.py`: cr
 | IV. Qualidade, Limpeza e Tratamento Resiliente | PASS | PASS | Ausências, valores inválidos, linhas malformadas e cópias exatas após normalização são rejeitadas deterministicamente; relatório imprime contagens estruturadas por motivo, com atribuição única por linha e totais reconciliáveis. Registros distintos com mesmo ID permanecem válidos. |
 | V. Ambiente Padronizado e Rastreabilidade | PASS | PASS | Nenhuma dependência nova para RF03; `.venv` e Docker Compose executam a suíte e `main.py`. T009–T011 verificaram todos os quality gates e a geração dos dois artefatos em `outputs/`. |
 
-**Gate Evaluation**: Os cinco princípios foram verificados. Testes passaram via pytest local e Docker Compose; `main.py` gerou `outputs/metricas_resumo.csv` e `outputs/estatisticas.json` localmente e via Docker. Duplicatas são preservadas pela limpeza conforme o escopo da feature; não há exigência RF03 de deduplicação. A função retorna somente a lista limpa; totais e contadores estruturados por motivo são apresentados no relatório impresso.
+**Gate Evaluation**: Os cinco princípios foram verificados. Testes passaram via pytest local e Docker Compose; `main.py` gerou `outputs/metricas_resumo.csv` e `outputs/estatisticas.json` localmente e via Docker. Cópias exatas após normalização são removidas deterministicamente, mantendo a primeira ocorrência e contabilizando `registro_duplicado`; registros distintos com mesmo ID são preservados. A função retorna somente a lista limpa; totais e contadores estruturados por motivo são apresentados no relatório impresso e disponibilizados para exportação.
 ## Project Structure
 
 ### Documentation (this feature)
