@@ -116,3 +116,9 @@ Task: T009 — document I/O behavior in README.md
 ### Incremental Delivery
 
 US1 and US2 each provide separately verifiable I/O behavior. Deliver US1 first as MVP, then US2, then documentation and full-pipeline validation. For every changed behavior: tests first → confirm red → minimum implementation → confirm green → refactor.
+
+---
+
+## Phase 7: Convergence
+
+- [ ] T013 Correct README report contents and document Docker Engine/Compose prerequisites per T009 and plan: README (partial).
