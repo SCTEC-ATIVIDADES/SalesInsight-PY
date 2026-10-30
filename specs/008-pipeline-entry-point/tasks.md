@@ -117,4 +117,4 @@ US1 delivers usable full pipeline and outputs. US2 adds import safety without ch
 ## Phase 6: Convergence
 
 - [X] T011 Return nonzero CLI exit status for generator, input, processing, and export failures via `SystemExit` and boolean `executar_pipeline()` result per T006
-- [X] T012 Validate full suite (63 passed), Docker pipeline execution, and RF07 JSON/CSV schemas per T010; host environment cannot run gates because pandas and `ensurepip` are unavailable
+- [X] T012 Validate full suite on host and Docker (63 passed each), pipeline execution, and RF07 JSON/CSV schemas per T010
