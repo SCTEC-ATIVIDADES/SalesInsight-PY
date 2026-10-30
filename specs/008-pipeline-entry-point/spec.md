@@ -78,4 +78,5 @@ As a developer, I can import the application entry module without starting data 
 
 - Existing `modulo_vendas.py` functions and RF01–RF07 data/output contracts remain authoritative.
 - Default input remains `vendas.csv`; generated data uses 150 records.
-- Top-customer selection uses the existing project segmentation and ranking behavior.
+- Top-customer selection displays up to five customers with highest spend; ties retain their original customer order.
+- If the example’s helper functions are absent, the entry point uses the project’s existing API and does not add duplicate helpers just to match example names.
