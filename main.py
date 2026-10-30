@@ -22,6 +22,7 @@ if __name__ == "__main__":
         "registros_validos": len(dados_com_campos_derivados),
         "registros_removidos": len(dados_brutos) - len(dados_limpos),
         "motivos_remocao": motivos_remocao,
+        **mv.calcular_metricas(dados_com_campos_derivados),
     }
     mv.exportar_resultados(metricas)
 

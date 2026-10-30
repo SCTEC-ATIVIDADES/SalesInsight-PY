@@ -49,7 +49,7 @@ Nenhuma tarefa fundacional; estrutura e etapa de limpeza já existem.
 ## Phase 5: Polish & Cross-Cutting Concerns
 
 - [X] T005 Adicionar teste com 10.000 registros em `tests/test_modulo_vendas.py`; verificar que saída contém exatamente 10.000 registros, todos têm `receita_total` e `faixa_preco`, e cada resultado corresponde ao cálculo esperado.
-- [ ] T006 Executar validação quickstart (`pytest tests/test_modulo_vendas.py`, `pytest` e `python main.py`) conforme `specs/004-derived-fields/quickstart.md`.
+- [X] T006 Executar validação quickstart (`pytest tests/test_modulo_vendas.py`, `pytest` e `python main.py`) conforme `specs/004-derived-fields/quickstart.md`.
 
 ## Dependencies & Execution Order
 

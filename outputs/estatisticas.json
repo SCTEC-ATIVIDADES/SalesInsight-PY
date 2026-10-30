@@ -12,6 +12,19 @@
             "quantidade_invalida": 0,
             "preco_unitario_invalido": 0,
             "registro_duplicado": 1
+        },
+        "total_geral": 1194235.44,
+        "por_categoria": {
+            "Acessórios": 446337.23,
+            "Eletrônicos": 429233.45,
+            "Celulares": 318664.76
+        },
+        "por_regiao": {
+            "Sudeste": 214692.42,
+            "Sul": 311382.55,
+            "Centro-Oeste": 244124.41,
+            "Norte": 175361.17,
+            "Nordeste": 248674.89
         }
     }
 }
