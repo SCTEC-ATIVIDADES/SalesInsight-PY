@@ -67,7 +67,7 @@
 **Purpose**: Verify full behavior and run documented quality gates.
 
 - [X] T009 [P] Update RF08 run and expected-output instructions in `README.md`
-- [X] T010 Verify Docker tests (63 passed), direct execution, and RF07 JSON/CSV schemas; host gates blocked by missing pandas and `ensurepip`.
+- [X] T010 Verify host and Docker tests (63 passed each), direct execution, and RF07 JSON/CSV schemas.
 
 ---
 
