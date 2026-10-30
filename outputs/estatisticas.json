@@ -1,0 +1,17 @@
+{
+    "metricas_gerais": {
+        "registros_validos": 137,
+        "registros_removidos": 14,
+        "motivos_remocao": {
+            "campo_ausente": 0,
+            "campo_textual_invalido": 0,
+            "data_venda_invalida": 0,
+            "id_venda_invalido": 0,
+            "quantidade_ausente": 7,
+            "preco_unitario_ausente": 6,
+            "quantidade_invalida": 0,
+            "preco_unitario_invalido": 0,
+            "registro_duplicado": 1
+        }
+    }
+}
