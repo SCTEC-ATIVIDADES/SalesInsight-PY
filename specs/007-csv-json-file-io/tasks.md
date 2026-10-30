@@ -12,7 +12,7 @@
 
 **Purpose**: Confirm existing project environment; no new scaffolding or dependencies required.
 
-- [ ] T001 Verify Python dependencies and project test command from `requirements.txt` and `tests/test_modulo_vendas.py`
+- [X] T001 Verify Python dependencies and project test command from `requirements.txt` and `tests/test_modulo_vendas.py`
 
 ---
 
@@ -20,7 +20,7 @@
 
 **Purpose**: Shared I/O conventions used by both stories.
 
-- [ ] T002 [P] Confirm UTF-8, `newline=""`, and native CSV/JSON usage in `modulo_vendas.py`
+- [X] T002 [P] Confirm UTF-8, `newline=""`, and native CSV/JSON usage in `modulo_vendas.py`
 
 ---
 
@@ -32,11 +32,11 @@
 
 ### Tests for User Story 1
 
-- [ ] T003 [P] [US1] Add tests using a UTF-8 CSV with at least two records to assert all rows, source order, exact header-to-value mapping, and accented values; also test header-only/empty input plus missing/unreadable path in `tests/test_modulo_vendas.py`. Run tests before implementation and record expected red results.
+- [X] T003 [P] [US1] Add tests using a UTF-8 CSV with at least two records to assert all rows, source order, exact header-to-value mapping, and accented values; also test header-only/empty input plus missing/unreadable path in `tests/test_modulo_vendas.py`. Docker run `pytest -q tests/test_modulo_vendas.py -k carregar_csv`: 3 passed; new assertions were already satisfied by existing loader, so no artificial code change.
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Implement minimum `carregar_csv` changes in `modulo_vendas.py` to pass T003 while retaining `csv.DictReader`, UTF-8, and current empty-list error contract; rerun T003 to green before refactor.
+- [X] T004 [US1] Confirm existing `carregar_csv` in `modulo_vendas.py` already meets T003 using `csv.DictReader`, UTF-8, and current empty-list error contract; no source change needed (T003 run: 3 passed).
 
 **Checkpoint**: Run `pytest -q tests/test_modulo_vendas.py`; CSV loading story works independently.
 
@@ -50,13 +50,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T005 [US2] Add export tests for exact JSON keys/values (`metricas_gerais`, `clientes`), UTF-8 round-trip, exact category CSV header and every `por_categoria` row, empty categories, auto-created output directory, and file replacement in `tests/test_modulo_vendas.py`; run tests before implementation and record expected red results.
-- [ ] T006 [US2] Add exporter write/serialization failure tests and no-success assertion in `tests/test_modulo_vendas.py`; run tests before implementation and record expected red results.
+- [X] T005 [US2] Add export tests for exact JSON keys/values (`metricas_gerais`, `clientes`), UTF-8 round-trip, exact category CSV header and every `por_categoria` row, empty categories, auto-created output directory, and file replacement in `tests/test_modulo_vendas.py`; Docker focused run was red against old exporter, then passed after T007.
+- [X] T006 [US2] Add exporter write/serialization failure tests and no-success assertion in `tests/test_modulo_vendas.py`; serialization failure and unusable output path propagate without `[OK]` output.
 
 ### Implementation for User Story 2
 
-- [ ] T007 [US2] Implement minimum `exportar_resultados` changes in `modulo_vendas.py` to accept metrics/customers separately, write JSON keys `metricas_gerais` and `clientes`, export all `metricas["por_categoria"]` rows under `Categoria, Receita Total`, preserve filenames, and surface write/serialization failures without false success; rerun T005/T006 to green before refactor.
-- [ ] T008 [US2] Add pipeline export-failure test first in `tests/test_modulo_vendas.py`, confirm red; update `main.py` to pass metrics and customer results separately and report failure clearly without business logic; rerun test to green.
+- [X] T007 [US2] Implement minimum `exportar_resultados` changes in `modulo_vendas.py` to accept metrics/customers separately, write JSON keys `metricas_gerais` and `clientes`, export all `metricas["por_categoria"]` rows under `Categoria, Receita Total`, preserve filenames, and surface write/serialization failures without false success; focused exporter tests passed after the red run.
+- [X] T008 [US2] Add pipeline export-failure test first in `tests/test_modulo_vendas.py`, confirm red (`OSError` traceback), update `main.py` to pass metrics/customer results separately and report failure clearly without business logic; rerun test green (1 passed).
 
 **Checkpoint**: Run `pytest -q tests/test_modulo_vendas.py`; exported files reopen and contain all supplied values.
 
@@ -66,9 +66,9 @@
 
 **Purpose**: Validate pipeline, docs, and project quality gates.
 
-- [ ] T009 [P] Document project objective, prerequisites/install, local and Docker setup, TDD workflow, CSV/JSON rationale, output files/schema, concepts, and known limitations in `README.md`; update obsolete architecture/output descriptions.
-- [ ] T010 Run `pytest -q` and `python main.py`; verify `outputs/estatisticas.json` keys and `outputs/metricas_resumo.csv` header/category rows locally
-- [ ] T011 Run `docker compose run --rm app pytest -q` and `docker compose run --rm app python main.py`; verify JSON keys and CSV header/category rows in mounted `outputs/`
+- [X] T009 [P] Document project objective, prerequisites/install, local and Docker setup, TDD workflow, CSV/JSON rationale, output files/schema, concepts, and known limitations in `README.md`; update obsolete architecture/output descriptions.
+- [ ] T010 Run `pytest -q` and `python main.py`; verify `outputs/estatisticas.json` keys and `outputs/metricas_resumo.csv` header/category rows locally. Blocked: host Python lacks pandas (`ModuleNotFoundError`); Docker validation passed.
+- [X] T011 Run `docker compose run --rm app pytest -q` and `docker compose run --rm app python main.py`; verify JSON keys and CSV header/category rows in mounted `outputs/` (`53 passed`; both output schemas inspected).
 
 ---
 
