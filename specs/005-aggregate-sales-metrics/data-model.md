@@ -18,4 +18,4 @@ Each input record is already cleaned and enriched by RF04.
 | `por_categoria` | Dictionary of text to decimal | One total per category; round accumulator to two decimals after each addition. |
 | `por_regiao` | Dictionary of text to decimal | One total per region; round accumulator to two decimals after each addition. |
 
-Each input record contributes once to its category, region, and general total. Empty input produces `0.0`, `{}`, and `{}` respectively.
+Each input record contributes once to its category, region, and general total. Group accumulators use Python `round(accumulator + receita_total, 2)` after every addition; grand total is summed without intermediate rounding and rounded once at the end (`round(total, 2)`, tie-to-even). Group totals may not reconcile exactly with grand total; no fixed per-group error bound is promised. Empty input produces `0.0`, `{}`, and `{}` respectively.

@@ -18,11 +18,11 @@
 
 **Goal**: Calculate rounded revenue total per category from RF04-enriched sales.
 
-**Independent Test**: Call `calcular_metricas` on records with repeated and distinct categories; verify category totals rounded to two decimals.
+**Independent Test**: Call `calcular_metricas` on minimal records containing only `categoria` and `receita_total`; verify category totals rounded to two decimals, without region aggregation.
 
 ### Tests
 
-- [ ] T001 [US1] Add category aggregation tests for repeated categories, distinct categories, and two-decimal accumulation in `tests/test_modulo_vendas.py`; run them first and confirm failure.
+- [ ] T001 [US1] Add category tests using minimal records with only `categoria` and `receita_total`, covering repeated/distinct categories and per-addition rounding in `tests/test_modulo_vendas.py`; run first and confirm failure.
 
 ### Implementation
 
@@ -34,11 +34,11 @@
 
 **Goal**: Calculate rounded revenue total per region.
 
-**Independent Test**: Call `calcular_metricas` on records with repeated and distinct regions; verify each regional sum and two-decimal rounding.
+**Independent Test**: Call `calcular_metricas` on minimal records containing only `regiao` and `receita_total`; verify each regional sum and two-decimal rounding, without category aggregation.
 
 ### Tests
 
-- [ ] T003 [US2] Add regional aggregation tests for repeated and distinct regions in `tests/test_modulo_vendas.py`; run them first and confirm failure.
+- [ ] T003 [US2] Add region tests using minimal records with only `regiao` and `receita_total`, covering repeated/distinct regions and per-addition rounding in `tests/test_modulo_vendas.py`; run first and confirm failure.
 
 ### Implementation
 
@@ -50,11 +50,11 @@
 
 **Goal**: Calculate company-wide revenue and expose all aggregate metrics in pipeline outputs.
 
-**Independent Test**: Verify aggregate dictionary has `total_geral`, `por_categoria`, and `por_regiao`; run pipeline and confirm exported metrics include these values.
+**Independent Test**: Call `calcular_metricas` on minimal records containing only `receita_total`; verify `total_geral` without category/region fields. Separately test pipeline export integration after full result shape exists.
 
 ### Tests
 
-- [ ] T005 [US3] Add tests for grand-total rounding, empty input (`0.0` and empty groups), and complete returned result shape in `tests/test_modulo_vendas.py`; run first and confirm failure.
+- [ ] T005 [US3] Add grand-total rounding test using records with only `receita_total`, plus empty-input (`0.0`, empty groups) and full result-shape tests in `tests/test_modulo_vendas.py`; run first and confirm failure.
 - [ ] T006 [US3] Add pipeline integration test verifying aggregated metrics are passed to `exportar_resultados` in `tests/test_modulo_vendas.py`.
 
 ### Implementation
@@ -68,7 +68,7 @@
 
 **Purpose**: Validate all stories together and confirm one-pass scale target.
 
-- [ ] T009 [P] Add a 10,000-record aggregation test asserting expected totals and group counts in `tests/test_modulo_vendas.py`.
+- [ ] T009 [P] Add a deterministic 10,000-record test in `tests/test_modulo_vendas.py`: record `i` has `categoria=f'C{i % 10}'`, `regiao=f'R{i % 4}'`, `receita_total=1.00`; assert `total_geral == 10000.0`, each of 10 categories totals `1000.0`, each of 4 regions totals `2500.0`.
 - [ ] T010 Run focused suite, full pytest suite, `python main.py`, and Docker validations specified in `specs/005-aggregate-sales-metrics/quickstart.md`.
 
 ## Dependencies & Execution Order
@@ -82,8 +82,8 @@
 ### User Story Dependencies
 
 - **US1 (P1)**: Independent MVP; starts immediately.
-- **US2 (P2)**: Depends on `calcular_metricas` introduced by US1; extends same function.
-- **US3 (P3)**: Depends on aggregated return structure from US1/US2; integrates results into CLI export.
+- **US2 (P2)**: Test-only behavior is independently specified with records containing only `regiao` and `receita_total`; implementation may extend `calcular_metricas` introduced by US1.
+- **US3 (P3)**: Grand-total behavior is independently specified with records containing only `receita_total`; full return-shape and CLI export integration depend on US1/US2 outputs.
 
 ### Parallel Opportunities
 
@@ -117,5 +117,5 @@ Task: Review expected category rounding cases against specs/005-aggregate-sales-
 
 - Every task uses checkbox, sequential ID, applicable story label, and explicit file path.
 - TDD tasks must fail before corresponding implementation.
-- Aggregation input comes from RF04 output; category/region group totals round after each addition, grand total rounds once at end.
+- Aggregation input comes from RF04 output; Python `round` (ties-to-even) applies after each grouped addition; grand total rounds once at end. Group totals need not reconcile exactly with grand total.
 - No external contract files apply to this internal CLI feature.

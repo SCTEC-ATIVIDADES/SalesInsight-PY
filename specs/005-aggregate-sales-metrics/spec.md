@@ -31,7 +31,7 @@ Como analista de vendas, quero somar receitas por região para comparar o desemp
 
 **Why this priority**: Totais regionais apoiam comparação entre áreas de venda.
 
-**Independent Test**: Fornecer registros com regiões repetidas e receitas conhecidas; verificar soma correta por região.
+**Independent Test**: Fornecer registros mínimos contendo apenas `regiao` e `receita_total`; verificar soma correta por região, sem depender de agrupamento por categoria.
 
 **Acceptance Scenarios**:
 
@@ -45,7 +45,7 @@ Como analista de vendas, quero conhecer a receita total da empresa no conjunto a
 
 **Why this priority**: Total geral fornece visão consolidada e valida os agregados segmentados.
 
-**Independent Test**: Fornecer registros com receitas conhecidas; verificar soma total arredondada a duas casas decimais.
+**Independent Test**: Fornecer registros mínimos contendo apenas `receita_total`; verificar soma total arredondada a duas casas decimais, sem depender de agrupamento por categoria ou região.
 
 **Acceptance Scenarios**:
 
@@ -55,7 +55,7 @@ Como analista de vendas, quero conhecer a receita total da empresa no conjunto a
 
 - Uma coleção vazia resulta em total geral igual a zero e agregados vazios.
 - Uma única venda gera totais iguais à sua receita para categoria, região e total geral.
-- Totais por categoria e região são arredondados a duas casas após cada adição; total geral é somado sem arredondamento intermediário e arredondado ao final.
+- Cada `receita_total` já possui duas casas. Total por categoria e por região: adicionar uma receita por vez e aplicar `round(acumulado + receita_total, 2)` a cada adição. Total geral: somar valores de receita sem arredondamento intermediário e aplicar `round(soma, 2)` uma única vez. Usar arredondamento nativo de Python (`round`, empate para par). Totais agrupados podem diferir do total geral por acumulação; não há garantia de reconciliação exata nem limite fixo por grupo.
 - Cada registro de entrada possui `categoria`, `regiao` e `receita_total` válidos, produzidos pelas etapas anteriores.
 
 ## Requirements *(mandatory)*
@@ -81,11 +81,11 @@ Como analista de vendas, quero conhecer a receita total da empresa no conjunto a
 - **SC-001**: 100% dos registros válidos contribuem exatamente uma vez para seus totais por categoria, região e total geral.
 - **SC-002**: Totais por categoria, região e total geral correspondem às somas esperadas com precisão de duas casas decimais.
 - **SC-003**: Coleção vazia produz total geral zero e nenhum grupo, sem erro.
-- **SC-004**: Totais por categoria e região podem ser comparados diretamente e reconciliam com total geral, salvo diferenças de arredondamento acumulado inferiores a um centavo por grupo.
+- **SC-004**: Totais por categoria e região podem ser comparados diretamente; diferenças frente ao total geral refletem exclusivamente as regras de arredondamento definidas em Edge Cases, sem requisito de reconciliação exata.
 
 ## Assumptions
 
 - A entrada contém registros limpos com `categoria`, `regiao` e `receita_total` numérica e finita.
 - Os valores de `receita_total` já foram calculados e arredondados na etapa anterior.
 - Categorias e regiões são agrupadas pelos valores recebidos, sem normalização adicional.
-- O resultado contém total geral, totais por categoria e totais por região; métricas são adicionadas aos arquivos existentes sem alterar seu formato.
+- O resultado contém total geral, totais por categoria e totais por região. Incluir essas chaves no objeto `metricas_gerais` já exportado em JSON e como linhas adicionais no CSV existente. Preservar nomes, tipos e estrutura externos atuais (`{"metricas_gerais": {...}}` no JSON; colunas `Métrica, Valor` no CSV); não criar arquivo nem alterar esquema.

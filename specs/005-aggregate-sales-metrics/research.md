@@ -4,7 +4,7 @@
 
 Group totals by category and region are rounded to two decimals after each addition; grand total is accumulated from the per-sale rounded `receita_total` values and rounded once at the end.
 
-**Rationale**: Matches the provided RF05 assignment example. RF04 already rounds each sale's revenue before aggregation. The specification permits sub-cent reconciliation differences caused by accumulated rounding.
+**Rationale**: Matches provided RF05 assignment example. RF04 rounds each sale before aggregation. Group and grand totals intentionally use distinct rounding sequences; no reconciliation guarantee or error bound is part of the contract. Python `round` uses ties-to-even.
 
 **Alternatives considered**: Round all totals only at the end, or use decimal arithmetic. Neither matches the supplied example or project’s existing Python `round` behavior.
 

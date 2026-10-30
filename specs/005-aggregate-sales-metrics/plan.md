@@ -24,7 +24,7 @@ Implement reusable aggregation in `modulo_vendas.py` for revenue by category and
 
 **Performance Goals**: Single O(n) pass; support at least 10,000 records for local execution.
 
-**Constraints**: Input records already contain valid category, region, and finite `receita_total` rounded per sale. Round grouped accumulators after each addition; round grand total at end. Add metrics to existing export without changing exporter format. No external interface; contract files not applicable.
+**Constraints**: Input records already contain valid category, region, and finite `receita_total` rounded per sale. Apply Python `round(accumulator + receita_total, 2)` after every grouped addition; sum grand total without intermediate rounding and apply `round(total, 2)` once at return (Python tie-to-even behavior). Group totals need not reconcile exactly with grand total. Add `total_geral`, `por_categoria`, and `por_regiao` inside existing metrics mapping; preserve JSON wrapper `metricas_gerais` and CSV columns `Métrica, Valor`, adding rows/keys only. No external interface; contract files not applicable.
 
 **Scale/Scope**: One reusable aggregation function, pipeline wiring, focused tests, and generated aggregate results; no input schema/storage changes.
 
