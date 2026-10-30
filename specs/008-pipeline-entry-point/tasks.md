@@ -118,3 +118,7 @@ US1 delivers usable full pipeline and outputs. US2 adds import safety without ch
 
 - [X] T011 Return nonzero CLI exit status for generator, input, processing, and export failures via `SystemExit` and boolean `executar_pipeline()` result per T006
 - [X] T012 Validate full suite on host and Docker (63 passed each), pipeline execution, and RF07 JSON/CSV schemas per T010
+
+## Phase 7: Convergence
+
+- [ ] T013 Add a test that executes `main.py` as `__main__` and asserts pipeline runs exactly once with correct exit status per US2/AC2 (partial)
