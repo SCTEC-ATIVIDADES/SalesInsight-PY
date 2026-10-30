@@ -133,34 +133,22 @@ def test_gerar_dataset_sintetico_inconsistencias_deliberadas(tmp_path: Path) -> 
     assert produto_espacos >= 1
 
 
-def test_carregar_csv_retorna_lista_dicionarios_preservando_brutos(
+def test_carregar_csv_retorna_todas_as_linhas_com_valores_brutos_e_unicode(
     tmp_path: Path,
 ) -> None:
     arquivo = tmp_path / "vendas_teste.csv"
     with open(arquivo, mode="w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(gd.CABECALHO_VENDAS)
-        writer.writerow(
-            [
-                "1",
-                "2024-05-10",
-                "Cliente_1",
-                "  Notebook ",
-                "Eletrônicos",
-                "Sudeste",
-                "",
-                "2500.5",
-            ]
-        )
+        writer.writerow(["id", "produto", "categoria"])
+        writer.writerow(["1", "  Notebook ", "Eletrônicos"])
+        writer.writerow(["2", "Café", "Bebidas"])
 
     dados = mv.carregar_csv(arquivo)
-    assert isinstance(dados, list)
-    assert len(dados) == 1
-    assert isinstance(dados[0], dict)
-    assert list(dados[0].keys()) == gd.CABECALHO_VENDAS
-    assert dados[0]["produto"] == "  Notebook "
-    assert dados[0]["quantidade"] == ""
-    assert dados[0]["categoria"] == "Eletrônicos"
+
+    assert dados == [
+        {"id": "1", "produto": "  Notebook ", "categoria": "Eletrônicos"},
+        {"id": "2", "produto": "Café", "categoria": "Bebidas"},
+    ]
 
 
 def test_carregar_csv_arquivo_inexistente_retorna_lista_vazia(
@@ -172,6 +160,28 @@ def test_carregar_csv_arquivo_inexistente_retorna_lista_vazia(
     assert dados == []
     capturado = capsys.readouterr()
     assert f"[ERRO] Arquivo não encontrado: {inexistente}" in capturado.out
+
+
+def test_carregar_csv_vazio_retorna_lista_vazia(tmp_path: Path) -> None:
+    arquivo = tmp_path / "vazio.csv"
+    arquivo.write_text("", encoding="utf-8")
+
+    assert mv.carregar_csv(arquivo) == []
+
+
+def test_carregar_csv_ilegivel_retorna_lista_vazia(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    arquivo = tmp_path / "ilegivel.csv"
+    def abrir(caminho: str | Path, **_: object):
+        if caminho == arquivo:
+            raise PermissionError("permission denied")
+        raise AssertionError(f"Unexpected file path: {caminho}")
+
+    monkeypatch.setattr("builtins.open", abrir)
+
+    assert mv.carregar_csv(arquivo) == []
+    assert "[ERRO] Arquivo não encontrado" in capsys.readouterr().out
 
 
 def test_gerar_dataset_cria_diretorio_pai_automaticamente(tmp_path: Path) -> None:
@@ -797,7 +807,7 @@ def test_calcular_metricas_processa_10000_registros() -> None:
     assert resultado["por_regiao"] == {f"R{i}": 2500.0 for i in range(4)}
 
 
-def test_main_envia_metricas_agregadas_ao_exportador(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_main_envia_metricas_e_clientes_ao_exportador(monkeypatch: pytest.MonkeyPatch) -> None:
     dados = [{"cliente": "Ana", "receita_total": 10.0, "categoria": "A", "regiao": "Norte"}]
     chamadas: dict[str, object] = {}
     monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
@@ -813,15 +823,24 @@ def test_main_envia_metricas_agregadas_ao_exportador(monkeypatch: pytest.MonkeyP
             "por_regiao": {"Norte": 10.0},
         },
     )
-    monkeypatch.setattr(mv, "exportar_resultados", lambda metricas: chamadas.update(metricas))
+    monkeypatch.setattr(
+        mv,
+        "exportar_resultados",
+        lambda metricas, clientes: chamadas.update(metricas=metricas, clientes=clientes),
+    )
     monkeypatch.setattr("os.path.exists", lambda _: True)
 
     runpy.run_path("main.py", run_name="__main__")
 
-    assert chamadas["total_geral"] == 10.0
-    assert chamadas["por_categoria"] == {"A": 10.0}
-    assert chamadas["por_regiao"] == {"Norte": 10.0}
-    assert chamadas["segmentacao_clientes"] == {
+    assert chamadas["metricas"] == {
+        "registros_validos": 1,
+        "registros_removidos": 0,
+        "motivos_remocao": {},
+        "total_geral": 10.0,
+        "por_categoria": {"A": 10.0},
+        "por_regiao": {"Norte": 10.0},
+    }
+    assert chamadas["clientes"] == {
         "Ana": {"total_gasto": 10.0, "segmento": "Bronze"}
     }
 
@@ -884,7 +903,7 @@ def test_segmentar_clientes_por_gasto_processa_10000_vendas() -> None:
     assert resultado["Cliente 99"] == {"total_gasto": 100.0, "segmento": "Bronze"}
 
 
-def test_main_envia_segmentacao_ao_exportador(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_main_envia_clientes_separados_ao_exportador(monkeypatch: pytest.MonkeyPatch) -> None:
     dados = [{"cliente": "Ana", "receita_total": 3000.0}]
     chamadas: dict[str, object] = {}
     monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
@@ -892,52 +911,95 @@ def test_main_envia_segmentacao_ao_exportador(monkeypatch: pytest.MonkeyPatch) -
     monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
     monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
     monkeypatch.setattr(mv, "calcular_metricas", lambda _: {})
-    monkeypatch.setattr(mv, "exportar_resultados", lambda metricas: chamadas.update(metricas))
+    monkeypatch.setattr(
+        mv,
+        "exportar_resultados",
+        lambda metricas, clientes: chamadas.update(metricas=metricas, clientes=clientes),
+    )
     monkeypatch.setattr("os.path.exists", lambda _: True)
 
     runpy.run_path("main.py", run_name="__main__")
 
-    assert chamadas["segmentacao_clientes"] == {
+    assert chamadas["clientes"] == {
         "Ana": {"total_gasto": 3000.0, "segmento": "Prata"}
     }
+    assert isinstance(chamadas["metricas"], dict)
+    assert "segmentacao_clientes" not in chamadas["metricas"]
 
 
-def test_exportacao_preserva_segmentacao_em_json_e_csv(tmp_path: Path) -> None:
-    metricas = {"segmentacao_clientes": {"Ana": {"total_gasto": 3000.0, "segmento": "Prata"}}}
-    mv.exportar_resultados(metricas, pasta_saida=tmp_path)
+def test_main_reporta_falha_de_exportacao_sem_traceback(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    dados = [{"cliente": "Ana", "receita_total": 10.0}]
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
+    monkeypatch.setattr(mv, "inspecionar_dados", lambda _: {})
+    monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
+    monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {"por_categoria": {}})
 
-    assert json.loads((tmp_path / "estatisticas.json").read_text(encoding="utf-8")) == {
-        "metricas_gerais": metricas
-    }
-    with open(tmp_path / "metricas_resumo.csv", encoding="utf-8", newline="") as arquivo:
-        assert list(csv.reader(arquivo)) == [
-            ["Métrica", "Valor"],
-            ["segmentacao_clientes", '{"Ana": {"total_gasto": 3000.0, "segmento": "Prata"}}'],
-        ]
+    def falhar_exportacao(*args: object) -> None:
+        raise OSError("disco sem espaço")
+
+    monkeypatch.setattr(mv, "exportar_resultados", falhar_exportacao)
+    monkeypatch.setattr("os.path.exists", lambda _: True)
+
+    runpy.run_path("main.py", run_name="__main__")
+
+    saida = capsys.readouterr().out
+    assert "[ERRO] Falha ao exportar resultados: disco sem espaço" in saida
+    assert "Traceback" not in saida
+    assert "[OK]" not in saida
 
 
-def test_exportar_resultados_cria_arquivos_estruturados(tmp_path: Path) -> None:
+def test_exportar_resultados_escreve_schemas_rf07_em_utf8_e_substitui_arquivos(
+    tmp_path: Path,
+) -> None:
+    pasta_saida = tmp_path / "nova_pasta"
     metricas = {
-        "registros_validos": 1,
-        "registros_removidos": 2,
-        "motivos_remocao": {"quantidade_invalida": 2, "registro_duplicado": 1},
+        "por_categoria": {"Eletrônicos": 1250.5, "Bebidas": 20.0},
+        "observacao": "ação",
     }
+    clientes = {"João": {"total_gasto": 1250.5, "segmento": "Bronze"}}
 
-    mv.exportar_resultados(metricas, pasta_saida=tmp_path)
-
-    caminho_csv = tmp_path / "metricas_resumo.csv"
-    caminho_json = tmp_path / "estatisticas.json"
-    assert caminho_csv.exists()
-    assert caminho_json.exists()
+    mv.exportar_resultados(metricas, clientes, pasta_saida)
+    caminho_json = pasta_saida / "estatisticas.json"
+    caminho_csv = pasta_saida / "metricas_resumo.csv"
+    assert json.loads(caminho_json.read_text(encoding="utf-8")) == {
+        "metricas_gerais": metricas,
+        "clientes": clientes,
+    }
+    assert "ação" in caminho_json.read_text(encoding="utf-8")
     with open(caminho_csv, encoding="utf-8", newline="") as arquivo:
         assert list(csv.reader(arquivo)) == [
-            ["Métrica", "Valor"],
-            ["registros_validos", "1"],
-            ["registros_removidos", "2"],
-            ["motivos_remocao", "{\"quantidade_invalida\": 2, \"registro_duplicado\": 1}"],
+            ["Categoria", "Receita Total"],
+            ["Eletrônicos", "1250.5"],
+            ["Bebidas", "20.0"],
         ]
-    dados_json = json.loads(caminho_json.read_text(encoding="utf-8"))
-    assert dados_json == {"metricas_gerais": metricas}
+
+    mv.exportar_resultados({"por_categoria": {}}, {}, pasta_saida)
+    with open(caminho_csv, encoding="utf-8", newline="") as arquivo:
+        assert list(csv.reader(arquivo)) == [["Categoria", "Receita Total"]]
+    assert json.loads(caminho_json.read_text(encoding="utf-8")) == {
+        "metricas_gerais": {"por_categoria": {}},
+        "clientes": {},
+    }
+
+
+def test_exportar_resultados_propaga_falhas_sem_mensagem_de_sucesso(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with pytest.raises(TypeError):
+        mv.exportar_resultados({"por_categoria": {}, "invalido": object()}, {})
+
+    assert "[OK]" not in capsys.readouterr().out
+
+
+def test_exportar_resultados_propaga_falha_de_caminho(tmp_path: Path) -> None:
+    caminho_arquivo = tmp_path / "nao_diretorio"
+    caminho_arquivo.write_text("arquivo", encoding="utf-8")
+
+    with pytest.raises(OSError):
+        mv.exportar_resultados({"por_categoria": {}}, {}, caminho_arquivo)
 
 
 def test_inspecionar_dados_lista_vazia_executa_sem_erro(

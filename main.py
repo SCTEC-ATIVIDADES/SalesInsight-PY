@@ -23,7 +23,10 @@ if __name__ == "__main__":
         "registros_removidos": len(dados_brutos) - len(dados_limpos),
         "motivos_remocao": motivos_remocao,
         **mv.calcular_metricas(dados_com_campos_derivados),
-        "segmentacao_clientes": mv.segmentar_clientes_por_gasto(dados_com_campos_derivados),
     }
-    mv.exportar_resultados(metricas)
+    clientes = mv.segmentar_clientes_por_gasto(dados_com_campos_derivados)
+    try:
+        mv.exportar_resultados(metricas, clientes)
+    except (OSError, TypeError, ValueError) as erro:
+        print(f"[ERRO] Falha ao exportar resultados: {erro}")
 
