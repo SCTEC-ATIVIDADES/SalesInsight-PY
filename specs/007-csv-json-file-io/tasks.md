@@ -32,7 +32,7 @@
 
 ### Tests for User Story 1
 
-- [X] T003 [P] [US1] Add tests using a UTF-8 CSV with at least two records to assert all rows, source order, exact header-to-value mapping, and accented values; also test header-only/empty input plus missing/unreadable path in `tests/test_modulo_vendas.py`. Docker run `pytest -q tests/test_modulo_vendas.py -k carregar_csv`: 3 passed; new assertions were already satisfied by existing loader, so no artificial code change.
+- [X] T003 [P] [US1] Add tests using a UTF-8 CSV with at least two records to assert all rows, source order, exact header-to-value mapping, and accented values; also test header-only/empty input plus missing/unreadable path in `tests/test_modulo_vendas.py`. Docker run `pytest -q tests/test_modulo_vendas.py -k carregar_csv`: 4 passed, including simulated `PermissionError`; loader behavior already satisfied tests, so no artificial code change.
 
 ### Implementation for User Story 1
 

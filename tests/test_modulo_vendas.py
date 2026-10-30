@@ -169,6 +169,21 @@ def test_carregar_csv_vazio_retorna_lista_vazia(tmp_path: Path) -> None:
     assert mv.carregar_csv(arquivo) == []
 
 
+def test_carregar_csv_ilegivel_retorna_lista_vazia(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    arquivo = tmp_path / "ilegivel.csv"
+    def abrir(caminho: str | Path, **_: object):
+        if caminho == arquivo:
+            raise PermissionError("permission denied")
+        raise AssertionError(f"Unexpected file path: {caminho}")
+
+    monkeypatch.setattr("builtins.open", abrir)
+
+    assert mv.carregar_csv(arquivo) == []
+    assert "[ERRO] Arquivo não encontrado" in capsys.readouterr().out
+
+
 def test_gerar_dataset_cria_diretorio_pai_automaticamente(tmp_path: Path) -> None:
     aninhado = tmp_path / "sub1" / "sub2" / "vendas_aninhadas.csv"
     assert not aninhado.parent.exists()
