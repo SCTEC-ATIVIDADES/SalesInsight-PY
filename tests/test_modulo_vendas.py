@@ -961,7 +961,7 @@ def test_main_executado_como_programa_roda_pipeline_uma_vez(
     chamadas: list[str] = []
     dados = [{"cliente": "Ana", "receita_total": 10.0}]
     monkeypatch.setattr("os.path.exists", lambda _: True)
-    monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: chamadas.append("carregar") or dados)
     monkeypatch.setattr(mv, "inspecionar_dados", lambda _: None)
     monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
     monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
@@ -970,12 +970,15 @@ def test_main_executado_como_programa_roda_pipeline_uma_vez(
     monkeypatch.setattr(mv, "exportar_resultados", lambda *_: chamadas.append("exportar"))
     if not sucesso:
         monkeypatch.setattr(mv, "limpar_dados", lambda *_: _falhar_main("processar", "processar"))
-
+    contexto = runpy.run_path("main.py", run_name="rf08_direct_test")
+    executar_pipeline = contexto["executar_pipeline"]
+    executar_pipeline.__globals__["carregar_csv"] = mv.carregar_csv
     with pytest.raises(SystemExit) as erro:
-        runpy.run_path("main.py", run_name="__main__")
+        runpy.run_path("main.py", init_globals=contexto, run_name="__main__")
 
     assert erro.value.code == codigo
-    assert chamadas == (["exportar"] if sucesso else [])
+    assert chamadas.count("carregar") == 1
+    assert chamadas.count("exportar") == int(sucesso)
 
 
 def test_main_import_nao_executa_pipeline(

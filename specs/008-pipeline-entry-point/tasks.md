@@ -121,4 +121,4 @@ US1 delivers usable full pipeline and outputs. US2 adds import safety without ch
 
 ## Phase 7: Convergence
 
-- [X] T013 Add a test that executes `main.py` as `__main__` and asserts pipeline runs exactly once with correct exit status per US2/AC2 (2 focused tests pass locally and in Docker)
+- [X] T013 Add tests that execute `main.py` as `__main__`, assert one pipeline run and correct success/failure exit status per US2/AC2 (2 focused tests pass locally and in Docker)
