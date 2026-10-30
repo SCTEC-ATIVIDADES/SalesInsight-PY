@@ -72,6 +72,12 @@
 
 ---
 
+## Phase 6: Convergence
+
+- [ ] T012 Run local `pytest -q` and `python main.py` with project dependencies installed; verify RF07 output schemas per Constitution V (T010 partial).
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
