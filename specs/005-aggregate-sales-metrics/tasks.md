@@ -78,6 +78,10 @@
 - [X] T011 [US1] Add adversarial large-count and fractional-cent rounding tests in `tests/test_modulo_vendas.py` to lock exact accumulation behavior.
 - [X] T012 [US1] Use exact decimal accumulation in `calcular_metricas` in `modulo_vendas.py`, retaining Python `round` semantics and float output shape.
 
+## Phase 8: Convergence
+
+- [ ] T013 Reconcile duplicate T011/T012 entries and duplicate Phase 7 headings in this file; preserve task history while ensuring each task ID has one authoritative status (partial).
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
