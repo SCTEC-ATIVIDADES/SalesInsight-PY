@@ -22,11 +22,11 @@
 
 ### Tests
 
-- [ ] T001 [US1] Add category tests using minimal records with only `categoria` and `receita_total`, covering repeated/distinct categories and per-addition rounding in `tests/test_modulo_vendas.py`; run first and confirm failure.
+- [X] T001 [US1] Add category tests using minimal records with only `categoria` and `receita_total`, covering repeated/distinct categories and per-addition rounding in `tests/test_modulo_vendas.py`; run first and confirm failure.
 
 ### Implementation
 
-- [ ] T002 [US1] Implement `calcular_metricas(dados)` category aggregation in `modulo_vendas.py`, using `categoria` as key and rounding accumulated totals to two decimals after each addition.
+- [X] T002 [US1] Implement `calcular_metricas(dados)` category aggregation in `modulo_vendas.py`, using `categoria` as key and rounding accumulated totals to two decimals after each addition.
 
 **Checkpoint**: Category totals independently pass focused tests.
 
@@ -38,11 +38,11 @@
 
 ### Tests
 
-- [ ] T003 [US2] Add region tests using minimal records with only `regiao` and `receita_total`, covering repeated/distinct regions and per-addition rounding in `tests/test_modulo_vendas.py`; run first and confirm failure.
+- [X] T003 [US2] Add region tests using minimal records with only `regiao` and `receita_total`, covering repeated/distinct regions and per-addition rounding in `tests/test_modulo_vendas.py`; run first and confirm failure.
 
 ### Implementation
 
-- [ ] T004 [US2] Extend `calcular_metricas(dados)` in `modulo_vendas.py` to aggregate `receita_total` by `regiao` in same input pass, rounding each group accumulator after addition.
+- [X] T004 [US2] Extend `calcular_metricas(dados)` in `modulo_vendas.py` to aggregate `receita_total` by `regiao` in same input pass, rounding each group accumulator after addition.
 
 **Checkpoint**: Category and region totals both pass focused tests.
 
@@ -54,13 +54,13 @@
 
 ### Tests
 
-- [ ] T005 [US3] Add grand-total rounding test using records with only `receita_total`, plus empty-input (`0.0`, empty groups) and full result-shape tests in `tests/test_modulo_vendas.py`; run first and confirm failure.
-- [ ] T006 [US3] Add pipeline integration test verifying aggregated metrics are passed to `exportar_resultados` in `tests/test_modulo_vendas.py`.
+- [X] T005 [US3] Add grand-total rounding test using records with only `receita_total`, plus empty-input (`0.0`, empty groups) and full result-shape tests in `tests/test_modulo_vendas.py`; run first and confirm failure.
+- [X] T006 [US3] Add pipeline integration test verifying aggregated metrics are passed to `exportar_resultados` in `tests/test_modulo_vendas.py`.
 
 ### Implementation
 
-- [ ] T007 [US3] Complete `calcular_metricas(dados)` in `modulo_vendas.py` with a grand total accumulated across all records and rounded to two decimals at return.
-- [ ] T008 [US3] Call `mv.calcular_metricas(dados_com_campos_derivados)` and merge its result into existing `metricas` before export in `main.py`, preserving existing exporter format.
+- [X] T007 [US3] Complete `calcular_metricas(dados)` in `modulo_vendas.py` with a grand total accumulated across all records and rounded to two decimals at return.
+- [X] T008 [US3] Call `mv.calcular_metricas(dados_com_campos_derivados)` and merge its result into existing `metricas` before export in `main.py`, preserving existing exporter format.
 
 **Checkpoint**: Full metric dictionary and pipeline export pass independently.
 
@@ -68,8 +68,8 @@
 
 **Purpose**: Validate all stories together and confirm one-pass scale target.
 
-- [ ] T009 [P] Add a deterministic 10,000-record test in `tests/test_modulo_vendas.py`: record `i` has `categoria=f'C{i % 10}'`, `regiao=f'R{i % 4}'`, `receita_total=1.00`; assert `total_geral == 10000.0`, each of 10 categories totals `1000.0`, each of 4 regions totals `2500.0`.
-- [ ] T010 Run focused suite, full pytest suite, `python main.py`, and Docker validations specified in `specs/005-aggregate-sales-metrics/quickstart.md`.
+- [X] T009 [P] Add a deterministic 10,000-record test in `tests/test_modulo_vendas.py`: record `i` has `categoria=f'C{i % 10}'`, `regiao=f'R{i % 4}'`, `receita_total=1.00`; assert `total_geral == 10000.0`, each of 10 categories totals `1000.0`, each of 4 regions totals `2500.0`.
+- [X] T010 Run focused suite, full pytest suite, `python main.py`, and Docker validations specified in `specs/005-aggregate-sales-metrics/quickstart.md`.
 
 ## Dependencies & Execution Order
 

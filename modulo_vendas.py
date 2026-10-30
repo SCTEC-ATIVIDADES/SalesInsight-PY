@@ -240,6 +240,29 @@ def criar_campos_derivados(dados: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return dados_derivados
 
 
+def calcular_metricas(dados: list[dict[str, Any]]) -> dict[str, Any]:
+    """Calcula totais de receita por categoria, região e geral."""
+    total_geral = 0.0
+    por_categoria: dict[str, float] = {}
+    por_regiao: dict[str, float] = {}
+
+    for registro in dados:
+        receita_total = registro["receita_total"]
+        categoria = registro.get("categoria")
+        regiao = registro.get("regiao")
+        if categoria is not None:
+            por_categoria[categoria] = round(por_categoria.get(categoria, 0.0) + receita_total, 2)
+        if regiao is not None:
+            por_regiao[regiao] = round(por_regiao.get(regiao, 0.0) + receita_total, 2)
+        total_geral += receita_total
+
+    return {
+        "total_geral": round(total_geral, 2),
+        "por_categoria": por_categoria,
+        "por_regiao": por_regiao,
+    }
+
+
 def exportar_resultados(
     metricas: dict[str, Any], pasta_saida: str | os.PathLike[str] = "outputs"
 ) -> None:

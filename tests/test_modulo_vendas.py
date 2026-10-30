@@ -2,6 +2,7 @@ import csv
 from datetime import datetime
 import json
 from pathlib import Path
+import runpy
 import sys
 import pytest
 
@@ -707,6 +708,85 @@ def test_limpar_dados_expoe_motivos_estruturados_para_integracao(
     assert len(resultado) == 1
     assert motivos["registro_duplicado"] == 1
     assert sum(motivos.values()) == 1
+
+
+def test_calcular_metricas_agrupa_receita_por_categoria_com_arredondamento() -> None:
+    dados = [
+        {"categoria": "A", "receita_total": 0.005},
+        {"categoria": "A", "receita_total": 0.005},
+        {"categoria": "B", "receita_total": 2.345},
+    ]
+
+    resultado = mv.calcular_metricas(dados)
+
+    assert resultado["por_categoria"] == {"A": 0.01, "B": 2.35}
+
+
+def test_calcular_metricas_agrupa_receita_por_regiao() -> None:
+    dados = [
+        {"regiao": "Norte", "receita_total": 10.125},
+        {"regiao": "Norte", "receita_total": 1.125},
+        {"regiao": "Sul", "receita_total": 4.50},
+    ]
+
+    resultado = mv.calcular_metricas(dados)
+
+    assert resultado["por_regiao"] == {"Norte": 11.24, "Sul": 4.5}
+
+
+def test_calcular_metricas_total_geral_vazio_e_formato() -> None:
+    assert mv.calcular_metricas([]) == {
+        "total_geral": 0.0,
+        "por_categoria": {},
+        "por_regiao": {},
+    }
+    assert mv.calcular_metricas([{"receita_total": 0.125}])["total_geral"] == 0.12
+    assert mv.calcular_metricas(
+        [{"receita_total": 1.125}, {"receita_total": 2.125}]
+    )["total_geral"] == 3.25
+
+
+def test_calcular_metricas_processa_10000_registros() -> None:
+    dados = [
+        {
+            "categoria": f"C{i % 10}",
+            "regiao": f"R{i % 4}",
+            "receita_total": 1.0,
+        }
+        for i in range(10_000)
+    ]
+
+    resultado = mv.calcular_metricas(dados)
+
+    assert resultado["total_geral"] == 10_000.0
+    assert resultado["por_categoria"] == {f"C{i}": 1000.0 for i in range(10)}
+    assert resultado["por_regiao"] == {f"R{i}": 2500.0 for i in range(4)}
+
+
+def test_main_envia_metricas_agregadas_ao_exportador(monkeypatch: pytest.MonkeyPatch) -> None:
+    dados = [{"receita_total": 10.0, "categoria": "A", "regiao": "Norte"}]
+    chamadas: dict[str, object] = {}
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
+    monkeypatch.setattr(mv, "inspecionar_dados", lambda _: {})
+    monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
+    monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
+    monkeypatch.setattr(
+        mv,
+        "calcular_metricas",
+        lambda registros: {
+            "total_geral": 10.0,
+            "por_categoria": {"A": 10.0},
+            "por_regiao": {"Norte": 10.0},
+        },
+    )
+    monkeypatch.setattr(mv, "exportar_resultados", lambda metricas: chamadas.update(metricas))
+    monkeypatch.setattr("os.path.exists", lambda _: True)
+
+    runpy.run_path("main.py", run_name="__main__")
+
+    assert chamadas["total_geral"] == 10.0
+    assert chamadas["por_categoria"] == {"A": 10.0}
+    assert chamadas["por_regiao"] == {"Norte": 10.0}
 
 
 def test_exportar_resultados_cria_arquivos_estruturados(tmp_path: Path) -> None:
