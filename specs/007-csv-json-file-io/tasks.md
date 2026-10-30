@@ -67,14 +67,14 @@
 **Purpose**: Validate pipeline, docs, and project quality gates.
 
 - [X] T009 [P] Document project objective, prerequisites/install, local and Docker setup, TDD workflow, CSV/JSON rationale, output files/schema, concepts, and known limitations in `README.md`; update obsolete architecture/output descriptions.
-- [ ] T010 Run `pytest -q` and `python main.py`; verify `outputs/estatisticas.json` keys and `outputs/metricas_resumo.csv` header/category rows locally. Blocked: host Python lacks pandas (`ModuleNotFoundError`); Docker validation passed.
-- [X] T011 Run `docker compose run --rm app pytest -q` and `docker compose run --rm app python main.py`; verify JSON keys and CSV header/category rows in mounted `outputs/` (`53 passed`; both output schemas inspected).
+- [X] T010 Run `pytest -q` and `python main.py`; verify `outputs/estatisticas.json` keys and `outputs/metricas_resumo.csv` header/category rows locally using isolated pinned dependencies (`uv run --with-requirements requirements.txt`): 54 passed; pipeline and schemas passed.
+- [X] T011 Run `docker compose run --rm app pytest -q` and `docker compose run --rm app python main.py`; verify JSON keys and CSV header/category rows in mounted `outputs/`: 54 passed; pipeline and schemas passed.
 
 ---
 
 ## Phase 6: Convergence
 
-- [ ] T012 Run local `pytest -q` and `python main.py` with project dependencies installed; verify RF07 output schemas per Constitution V (T010 partial).
+- [X] T012 Run local `pytest -q` and `python main.py` with isolated pinned dependencies; verify RF07 output schemas per Constitution V (T010 complete).
 
 ---
 
