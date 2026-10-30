@@ -33,12 +33,12 @@
 ### Tests for User Story 1
 
 - [ ] T003 [US1] Add failing `main.py` integration tests for missing-input generation, existing-input reuse, and pipeline stage order in `tests/test_modulo_vendas.py`
-- [ ] T004 [US1] Add failing `main.py` output tests for executive summary, highest-spend top-five selection, export call, and no success report on export failure in `tests/test_modulo_vendas.py`
+- [ ] T004 [US1] Add failing `main.py` output and failure tests for executive summary, highest-spend top-five selection, export call, and generator, unreadable/empty input, processing, and export failures with no success report in `tests/test_modulo_vendas.py`
 
 ### Implementation for User Story 1
 
 - [ ] T005 [US1] Update `main.py` to orchestrate existing generator and `modulo_vendas.py` stages, display total revenue and up to five highest-spend customers, and invoke RF07 export
-- [ ] T006 [US1] Handle expected generation, read, processing, and export failures in `main.py` without traceback or false success message
+- [ ] T006 [US1] Handle generator, unreadable/empty input, processing, and export failures in `main.py` without traceback or false success message
 
 **Checkpoint**: US1 independently runs full pipeline and preserves established exports.
 

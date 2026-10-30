@@ -26,7 +26,7 @@ RF08 delivers a usable end-to-end sales workflow through the existing Python ent
 
 **Constraints**: Keep business logic in reusable modules; `main.py` only orchestrates behind `if __name__ == "__main__"`; generate input only when absent; preserve RF07 output filenames/schemas; report errors without false success; no dependencies.
 
-**Scale/Scope**: Existing dataset and pipeline; touch `main.py` and `tests/test_modulo_vendas.py` only if implementation gaps require it.
+**Scale/Scope**: Existing dataset and pipeline; expected changes are `main.py`, `tests/test_modulo_vendas.py`, and `README.md` for run/output instructions. Avoid changes to reusable pipeline modules unless a verified implementation gap requires them.
 
 ## Constitution Check
 
@@ -34,8 +34,8 @@ RF08 delivers a usable end-to-end sales workflow through the existing Python ent
 
 - I. Modularization/separation: PASS — orchestration in `main.py`, reusable behavior in `modulo_vendas.py`, generation in `gerador_dados.py`.
 - II. Explicit processing: PASS — existing stages use clear Python control flow and pandas where applicable; no opaque pipeline framework proposed.
-- III. Mandatory TDD: PASS — implementation changes require tests-first Red-Green-Refactor in `tests/test_modulo_vendas.py`.
-- IV. Resilient data/errors: PASS — reuse cleaning and error handling; test pipeline failure reporting and no false success.
+- III. Mandatory TDD: PASS — implementation changes require tests-first Red-Green-Refactor in `tests/test_modulo_vendas.py`, including generator, read, processing, and export failure paths.
+- IV. Resilient data/errors: PASS — reuse cleaning and error handling; test generation, unreadable/empty input, processing, and export failures without traceback or false success.
 - V. Docker/output traceability: PASS — preserve established outputs and validate locally and in Docker Compose.
 
 No gate violations; no waivers required.
@@ -78,8 +78,8 @@ Resolved project choices and current implementation in [research.md](./research.
 
 - I. Modularization/separation: PASS — design keeps entry point orchestration thin and reuses dedicated modules.
 - II. Explicit processing: PASS — no new processing abstraction or dependency.
-- III. Mandatory TDD: PASS — tests-first changes and full pytest gate specified.
-- IV. Resilient data/errors: PASS — failures are covered and success is emitted only after successful completion.
+- III. Mandatory TDD: PASS — tests-first changes and full pytest gate specified, including generator, read, processing, and export failure paths.
+- IV. Resilient data/errors: PASS — generation, unreadable/empty input, processing, and export failures are covered; success is emitted only after successful completion.
 - V. Docker/output traceability: PASS — RF07 output contracts and Docker validation preserved.
 
 No design violations; no complexity waivers required.
