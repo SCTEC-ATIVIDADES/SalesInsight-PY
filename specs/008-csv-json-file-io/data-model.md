@@ -8,12 +8,12 @@
 
 ## Analysis results
 
-- **Fields**: Overall metrics and customer-level results represented by JSON-compatible mappings, lists, and scalar values.
-- **Relationships**: Exported together in the existing statistics document under the established `metricas_gerais` envelope; customer segmentation remains part of the metrics where pipeline supplies it.
+- **Fields**: `metricas_gerais` (overall metrics) and `clientes` (customer results), each represented by JSON-compatible mappings, lists, or scalar values.
+- **Relationships**: Exported together in the statistics document as separate top-level `metricas_gerais` and `clientes` keys. The exporter receives metrics and customer results separately.
 - **Validation**: Serialized as valid JSON, preserving non-ASCII text.
 
 ## Category summary
 
-- **Fields**: Category label and corresponding revenue total.
-- **Relationships**: Derived from existing metric outputs and represented through established CSV export schema (`Métrica, Valor`); no separate output contract is introduced.
-- **Validation**: Empty metrics still produce header-only CSV; output is UTF-8 and CSV-escaped.
+- **Fields**: Category label and corresponding revenue total; CSV header exactly `Categoria, Receita Total`.
+- **Relationships**: Derived from `metricas["por_categoria"]` and written as one CSV row per category.
+- **Validation**: Empty category totals still produce header-only CSV; output is UTF-8 and CSV-escaped.

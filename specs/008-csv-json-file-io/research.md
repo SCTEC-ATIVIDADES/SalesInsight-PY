@@ -8,8 +8,8 @@
 
 ## Exports
 
-- **Decision**: Keep JSON serialization via `json.dump` with UTF-8 and `ensure_ascii=False`; write CSV using `csv.writer`, UTF-8, and `newline=""`; create output folder before writing. Keep existing output filenames and JSON wrapper unless spec-level consumers require a change.
-- **Rationale**: Native modules are explicit RF07 requirement; current project already establishes filenames and generic output schemas, with tests depending on them.
+- **Decision**: Serialize `{"metricas_gerais": metricas, "clientes": clientes}` via `json.dump` with UTF-8 and `ensure_ascii=False`; write CSV using `csv.writer`, UTF-8, and `newline=""`, with `Categoria, Receita Total` header and rows from `metricas["por_categoria"].items()`. Keep existing output filenames and create output folder before writing.
+- **Rationale**: Native modules and these payload/column contracts are explicit RF07 requirements; existing output filenames remain compatible.
 - **Alternatives considered**: `csv.DictWriter` is unnecessary for the existing two-column output; third-party serializers add no value.
 
 ## Errors and empty input
@@ -20,6 +20,6 @@
 
 ## Scope resolution
 
-- **Decision**: Follow the feature specification's named outputs and schemas only where compatible with established project contracts; RF07's example category/revenue CSV conflicts with existing `Métrica, Valor` CSV schema, existing plan/specs require preserving output formats. Preserve existing schemas and include supplied metrics/customer segmentation through the established generic metrics structure; do not add new output files.
-- **Rationale**: Project constitution and prior aggregate/segmentation specs require stable output paths/schema; no downstream contract change specified.
-- **Alternatives considered**: Replace existing CSV with category-only rows and JSON payload contract with explicit customer key; rejected as breaking existing consumers. Clarify during implementation if RF07 is intended to supersede prior output contracts.
+- **Decision**: RF07 supersedes the prior generic CSV and nested JSON payload schemas for these two existing output files. Preserve filenames, emit customer results as the explicit `clientes` JSON key, and write the category-specific CSV required by RF07.
+- **Rationale**: The supplied RF07 definition explicitly specifies JSON keys, CSV columns, and category source; implementation artifacts must match that contract.
+- **Alternatives considered**: Keeping the generic metrics CSV and nested customer segmentation would not satisfy RF07.

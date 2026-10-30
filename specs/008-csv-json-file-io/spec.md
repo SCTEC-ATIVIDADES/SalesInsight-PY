@@ -35,8 +35,8 @@ As a user, I can save overall metrics, customer results, and a category revenue 
 
 **Acceptance Scenarios**:
 
-1. **Given** metrics and customer results, **When** the user exports results, **Then** a JSON file contains overall metrics and customers.
-2. **Given** category totals, **When** the user exports results, **Then** a CSV file contains a category and revenue header followed by each category total.
+1. **Given** metrics and customer results, **When** the user exports results, **Then** a JSON file contains top-level `metricas_gerais` and `clientes` keys with supplied values.
+2. **Given** metrics containing category totals, **When** the user exports results, **Then** a CSV file has header `Categoria, Receita Total` followed by each entry from `metricas["por_categoria"]`.
 3. **Given** the output folder does not exist, **When** the user exports results, **Then** the folder and both files are created.
 4. **Given** non-ASCII text in results, **When** the user exports results, **Then** the saved JSON preserves that text in readable form.
 
@@ -53,10 +53,10 @@ As a user, I can save overall metrics, customer results, and a category revenue 
 
 - **FR-001**: The system MUST read input sales records from CSV files, using the first row as field names and preserving each row's values under the corresponding names.
 - **FR-002**: The system MUST read and write files as UTF-8, preserving accented and other non-ASCII text.
-- **FR-003**: The system MUST export overall metrics and customer results together in a JSON document.
-- **FR-004**: The system MUST export category revenue totals in a CSV document with columns named `Categoria` and `Receita Total`.
+- **FR-003**: The system MUST export a JSON document with top-level keys `metricas_gerais` for overall metrics and `clientes` for customer results.
+- **FR-004**: The system MUST export each category and revenue total from `metricas["por_categoria"].items()` as a row in a CSV document with header `Categoria, Receita Total`.
 - **FR-005**: The system MUST create the configured output folder when it does not already exist.
-- **FR-006**: The system MUST report input/output file failures clearly without exposing an unhandled traceback during normal pipeline execution.
+- **FR-006**: The system MUST report input/output file failures clearly without exposing an unhandled traceback during normal pipeline execution; failed exports MUST not be reported as successful.
 - **FR-007**: The system MUST replace previous output files when writing a new results export.
 
 ### Key Entities

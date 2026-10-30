@@ -44,18 +44,19 @@
 
 ## Phase 4: User Story 2 - Export analysis results (Priority: P1)
 
-**Goal**: Write supplied metrics and customer results as valid UTF-8 JSON and produce existing summary CSV, creating the output directory and replacing prior files.
+**Goal**: Write supplied metrics and customer results as valid UTF-8 JSON with top-level `metricas_gerais` and `clientes` keys; produce category CSV using `Categoria, Receita Total` and `metricas["por_categoria"]`, creating the output directory and replacing prior files.
 
-**Independent Test**: Export known nested metrics and customer data to a temporary folder, reopen both files, and verify content, UTF-8 text, CSV header/rows, and repeated-write replacement.
+**Independent Test**: Export known metrics containing `por_categoria` and separate customer results to a temporary folder, reopen both files, and verify exact JSON keys/values, UTF-8 text, CSV header/rows, repeated-write replacement, and clearly reported export failures.
 
 ### Tests for User Story 2
 
-- [ ] T005 [P] [US2] Add export tests for UTF-8 JSON content, CSV headers/rows, empty metrics, auto-created output directory, and file replacement in `tests/test_modulo_vendas.py`
+- [ ] T005 [US2] Add export tests for exact JSON keys (`metricas_gerais`, `clientes`), UTF-8 content, category CSV header and rows from `por_categoria`, empty categories, auto-created output directory, and file replacement in `tests/test_modulo_vendas.py`
+- [ ] T006 [US2] Add tests for output-path/write failures and clearly reported errors in `tests/test_modulo_vendas.py`
 
 ### Implementation for User Story 2
 
-- [ ] T006 [US2] Update `exportar_resultados` in `modulo_vendas.py` only where T005 reveals gaps; preserve filenames, JSON `metricas_gerais` envelope, and CSV `Métrica, Valor` schema
-- [ ] T007 [US2] Ensure `main.py` passes full analysis metrics including customer segmentation to exporter without adding business logic
+- [ ] T007 [US2] Update `exportar_resultados` in `modulo_vendas.py` to accept separate metrics and customer results, write JSON keys `metricas_gerais` and `clientes`, and export `metricas["por_categoria"]` under CSV columns `Categoria, Receita Total`; preserve filenames and report write failures clearly
+- [ ] T008 [US2] Update `main.py` to pass metrics and customer results separately to exporter without adding business logic
 
 **Checkpoint**: Run `pytest -q tests/test_modulo_vendas.py`; exported files reopen and contain all supplied values.
 
@@ -65,9 +66,9 @@
 
 **Purpose**: Validate pipeline, docs, and project quality gates.
 
-- [ ] T008 [P] Document finalized CSV/JSON input and output behavior, filenames, and limitations in `README.md`
-- [ ] T009 Run full test suite with `pytest -q` and pipeline with `python main.py`; confirm files under `outputs/`
-- [ ] T010 Run `docker compose run --rm app pytest -q` and verify successful completion
+- [ ] T009 [P] Document finalized CSV/JSON input and output behavior, filenames, and limitations in `README.md`
+- [ ] T010 Run full test suite with `pytest -q` and pipeline with `python main.py`; confirm files under `outputs/`
+- [ ] T011 Run `docker compose run --rm app pytest -q` and verify successful completion
 
 ---
 
@@ -81,12 +82,12 @@
 ### User Story Dependencies
 
 - **US1 (P1)**: Independent CSV loading flow; no dependency on US2.
-- **US2 (P1)**: Independent export flow; no dependency on US1 implementation beyond pipeline's existing metrics input.
+- **US2 (P1)**: Independent export flow; consumes metrics and customer results assembled by the existing pipeline.
 
 ### Parallel Opportunities
 
 - T003 and T005 can be implemented in parallel after T001/T002 because they are separate test sections in the same file; avoid concurrent edits if one worker modifies the same test file.
-- T008 can proceed in parallel with US implementation in `README.md`.
+- T009 can proceed in parallel with US implementation in `README.md`.
 - US1 implementation and US2 implementation are separately scoped but both touch `modulo_vendas.py`; run sequentially if changing that file to avoid conflicts.
 
 ## Parallel Example: User Stories
@@ -94,7 +95,7 @@
 ```text
 Task: T003 — add CSV input tests in tests/test_modulo_vendas.py
 Task: T005 — add export tests in tests/test_modulo_vendas.py (coordinate to avoid overlapping edits)
-Task: T008 — document I/O behavior in README.md
+Task: T009 — document I/O behavior in README.md
 ```
 
 ## Implementation Strategy
@@ -103,7 +104,7 @@ Task: T008 — document I/O behavior in README.md
 
 1. Complete setup and shared convention check.
 2. Complete US1 tests and minimal implementation; verify CSV loading independently.
-3. Add US2 tests and exporter checks; retain established output contracts.
+3. Add US2 tests and exporter checks; implement RF07 JSON and category CSV contracts.
 4. Run full local and Docker quality gates.
 
 ### Incremental Delivery

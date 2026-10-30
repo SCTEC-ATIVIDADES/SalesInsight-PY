@@ -16,10 +16,10 @@ python main.py
 
 ## Expected outcomes
 
-- Tests pass, including CSV header-to-field mapping, UTF-8 text handling, empty/missing input behavior, and output content checks.
+- Tests pass, including CSV header-to-field mapping, UTF-8 text handling, empty/missing input behavior, exact JSON keys, category CSV rows, and controlled export failures.
 - Pipeline completes without an unhandled I/O traceback for expected file errors.
-- `outputs/estatisticas.json` is valid UTF-8 JSON with the established `metricas_gerais` envelope.
-- `outputs/metricas_resumo.csv` is readable CSV with the established `Métrica, Valor` header.
+- `outputs/estatisticas.json` is valid UTF-8 JSON with top-level `metricas_gerais` and `clientes` keys.
+- `outputs/metricas_resumo.csv` is readable CSV with `Categoria, Receita Total` header and rows from metrics' `por_categoria` mapping.
 - Running export into a missing output folder creates it; repeated export replaces prior output files.
 
 ## Docker validation

@@ -6,7 +6,7 @@
 
 ## Summary
 
-RF07 formalizes reusable CSV loading and JSON/CSV export for the existing sales pipeline. Reuse `carregar_csv` and `exportar_resultados` in `modulo_vendas.py`, standard-library `csv`/`json`, UTF-8 file handling, and existing output schemas. Add only focused tests or minimal fixes for uncovered RF07 cases; do not introduce dependencies or break established report contracts.
+RF07 formalizes reusable CSV loading and JSON/CSV export for the existing sales pipeline. Reuse `carregar_csv` and `exportar_resultados` in `modulo_vendas.py`, standard-library `csv`/`json`, and UTF-8 file handling. Match RF07 output contracts exactly while keeping existing filenames and avoiding new dependencies.
 
 ## Technical Context
 
@@ -24,9 +24,9 @@ RF07 formalizes reusable CSV loading and JSON/CSV export for the existing sales 
 
 **Performance Goals**: Load and export the current dataset (approximately 151 records) without unnecessary repeated passes; no measurable delay for normal local use.
 
-**Constraints**: Read CSV as UTF-8 with `csv.DictReader`; export via native `csv` and `json`; preserve current paths `outputs/estatisticas.json`, `outputs/metricas_resumo.csv`, JSON envelope `metricas_gerais`, CSV columns `Métrica, Valor`; create output directory automatically; preserve non-ASCII text; report expected I/O failures clearly. No new output contract or dependency.
+**Constraints**: Read CSV as UTF-8 with `csv.DictReader`; export via native `csv` and `json`; preserve paths `outputs/estatisticas.json` and `outputs/metricas_resumo.csv`; write JSON top-level keys `metricas_gerais` and `clientes`; write category CSV columns `Categoria, Receita Total` with rows from `metricas["por_categoria"]`; create output directory automatically; preserve non-ASCII text; report expected I/O failures clearly. No new dependencies.
 
-**Scale/Scope**: Existing loader/exporter, pipeline integration, focused tests and documentation only; no new storage layer or report format.
+**Scale/Scope**: Existing loader/exporter, pipeline integration, focused tests and documentation only; RF07 defines JSON payload and category CSV schemas.
 
 ## Constitution Check
 
@@ -38,7 +38,7 @@ RF07 formalizes reusable CSV loading and JSON/CSV export for the existing sales 
 | II. Explicit processing | PASS | PASS | Standard-library CSV/JSON operations and explicit record/metric handling. |
 | III. TDD | PASS | PASS | Tests in `tests/test_modulo_vendas.py` precede changes; verify red/green/refactor. |
 | IV. Data quality and errors | PASS | PASS | UTF-8 handling and controlled filesystem failure behavior validated; cleaning remains downstream. |
-| V. Docker and outputs | PASS | PASS | Existing output names/schemas retained; local and Docker test/run checks documented. |
+| V. Docker and outputs | PASS | PASS | Existing output filenames retained; RF07 JSON/CSV schemas documented and validated locally and in Docker. |
 
 No gate violations; no complexity exceptions required.
 
