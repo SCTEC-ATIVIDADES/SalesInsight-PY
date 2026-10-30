@@ -121,4 +121,4 @@ US1 and US2 each provide separately verifiable I/O behavior. Deliver US1 first a
 
 ## Phase 7: Convergence
 
-- [ ] T013 Correct README report contents and document Docker Engine/Compose prerequisites per T009 and plan: README (partial).
+- [X] T013 Correct README report contents and document Docker Engine/Compose prerequisites per T009 and plan: README (partial). Corrected customer-vs-category output description and documented Docker prerequisites.

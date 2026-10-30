@@ -17,7 +17,7 @@ Pipeline completo de ciência de dados em Python para geração, ingestão, limp
 
 ## Segmentação de clientes por gasto
 
-O pipeline soma `receita_total` por cliente e classifica: Bronze abaixo de R$ 3.000; Prata de R$ 3.000 a R$ 8.000, inclusive; Ouro acima de R$ 8.000. Totais e segmentos aparecem nos relatórios CSV e JSON existentes.
+O pipeline soma `receita_total` por cliente e classifica: Bronze abaixo de R$ 3.000; Prata de R$ 3.000 a R$ 8.000, inclusive; Ouro acima de R$ 8.000. Totais e segmentos aparecem na chave `clientes` do JSON; o CSV resume somente receita por categoria.
 
 ## Conceitos e decisões
 
@@ -44,6 +44,8 @@ pytest -q
 Desenvolvimento segue TDD: escrever teste, confirmar falha, implementar, confirmar sucesso e refatorar; suíte fica em `tests/test_modulo_vendas.py`. Segmentação pressupõe dados previamente limpos, com `cliente` válido e `receita_total` finita; limpeza/rejeição de dados ocorre antes da exportação.
 
 ## Execução com Docker Compose (Recomendado)
+
+Requisitos: Docker Engine instalado e Docker Compose v2 (`docker compose`) disponível.
 
 ### Executar a suíte e pipeline (`pytest` + `main.py`)
 
