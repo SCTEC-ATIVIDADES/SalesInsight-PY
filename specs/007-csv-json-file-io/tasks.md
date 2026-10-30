@@ -4,7 +4,7 @@
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, quickstart.md
 
-**Tests**: Required by specification and project constitution; use pytest with Red-Green-Refactor.
+**Tests**: Required by specification and project constitution. For each behavior change, write tests first, run them and confirm expected failures, implement minimum change, then rerun to green before refactoring (Red-Green-Refactor). Record test command and red/green result in task completion notes.
 
 **Organization**: Tasks grouped by independently testable user story.
 
@@ -28,15 +28,15 @@
 
 **Goal**: Read all CSV rows into header-keyed records while preserving text and controlled missing-file behavior.
 
-**Independent Test**: Load temporary CSV fixtures and verify headers, values, accented text, empty input, and missing-file behavior.
+**Independent Test**: Load a UTF-8 temporary CSV with at least two rows; verify every row returned in source order, exact header-to-cell mappings, accented values, empty/header-only input, and missing/unreadable-file behavior.
 
 ### Tests for User Story 1
 
-- [ ] T003 [P] [US1] Add tests for UTF-8 accented values, header-only/empty CSV, and missing/unreadable file behavior in `tests/test_modulo_vendas.py`
+- [ ] T003 [P] [US1] Add tests using a UTF-8 CSV with at least two records to assert all rows, source order, exact header-to-value mapping, and accented values; also test header-only/empty input plus missing/unreadable path in `tests/test_modulo_vendas.py`. Run tests before implementation and record expected red results.
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Adjust `carregar_csv` in `modulo_vendas.py` only if T003 exposes a mismatch; retain `csv.DictReader`, UTF-8, and existing return contract
+- [ ] T004 [US1] Implement minimum `carregar_csv` changes in `modulo_vendas.py` to pass T003 while retaining `csv.DictReader`, UTF-8, and current empty-list error contract; rerun T003 to green before refactor.
 
 **Checkpoint**: Run `pytest -q tests/test_modulo_vendas.py`; CSV loading story works independently.
 
@@ -50,13 +50,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T005 [US2] Add export tests for exact JSON keys (`metricas_gerais`, `clientes`), UTF-8 content, category CSV header and rows from `por_categoria`, empty categories, auto-created output directory, and file replacement in `tests/test_modulo_vendas.py`
-- [ ] T006 [US2] Add tests for output-path/write failures and clearly reported errors in `tests/test_modulo_vendas.py`
+- [ ] T005 [US2] Add export tests for exact JSON keys/values (`metricas_gerais`, `clientes`), UTF-8 round-trip, exact category CSV header and every `por_categoria` row, empty categories, auto-created output directory, and file replacement in `tests/test_modulo_vendas.py`; run tests before implementation and record expected red results.
+- [ ] T006 [US2] Add exporter write/serialization failure tests and no-success assertion in `tests/test_modulo_vendas.py`; run tests before implementation and record expected red results.
 
 ### Implementation for User Story 2
 
-- [ ] T007 [US2] Update `exportar_resultados` in `modulo_vendas.py` to accept separate metrics and customer results, write JSON keys `metricas_gerais` and `clientes`, and export `metricas["por_categoria"]` under CSV columns `Categoria, Receita Total`; preserve filenames and report write failures clearly
-- [ ] T008 [US2] Update `main.py` to pass metrics and customer results separately to exporter without adding business logic
+- [ ] T007 [US2] Implement minimum `exportar_resultados` changes in `modulo_vendas.py` to accept metrics/customers separately, write JSON keys `metricas_gerais` and `clientes`, export all `metricas["por_categoria"]` rows under `Categoria, Receita Total`, preserve filenames, and surface write/serialization failures without false success; rerun T005/T006 to green before refactor.
+- [ ] T008 [US2] Add pipeline export-failure test first in `tests/test_modulo_vendas.py`, confirm red; update `main.py` to pass metrics and customer results separately and report failure clearly without business logic; rerun test to green.
 
 **Checkpoint**: Run `pytest -q tests/test_modulo_vendas.py`; exported files reopen and contain all supplied values.
 
@@ -66,9 +66,9 @@
 
 **Purpose**: Validate pipeline, docs, and project quality gates.
 
-- [ ] T009 [P] Document finalized CSV/JSON input and output behavior, filenames, and limitations in `README.md`
-- [ ] T010 Run full test suite with `pytest -q` and pipeline with `python main.py`; confirm files under `outputs/`
-- [ ] T011 Run `docker compose run --rm app pytest -q` and verify successful completion
+- [ ] T009 [P] Document project objective, prerequisites/install, local and Docker setup, TDD workflow, CSV/JSON rationale, output files/schema, concepts, and known limitations in `README.md`; update obsolete architecture/output descriptions.
+- [ ] T010 Run `pytest -q` and `python main.py`; verify `outputs/estatisticas.json` keys and `outputs/metricas_resumo.csv` header/category rows locally
+- [ ] T011 Run `docker compose run --rm app pytest -q` and `docker compose run --rm app python main.py`; verify JSON keys and CSV header/category rows in mounted `outputs/`
 
 ---
 
@@ -77,7 +77,7 @@
 ### Phase Dependencies
 
 - Setup (Phase 1) → Foundational (Phase 2) → User Stories → Polish.
-- US1 and US2 depend only on the shared conventions check; they can proceed independently after Phase 2.
+- US1 and US2 depend only on shared conventions and can proceed independently after Phase 2; run implementation tasks only after their tests have recorded red results.
 
 ### User Story Dependencies
 
@@ -87,14 +87,14 @@
 ### Parallel Opportunities
 
 - T003 and T005 can be implemented in parallel after T001/T002 because they are separate test sections in the same file; avoid concurrent edits if one worker modifies the same test file.
-- T009 can proceed in parallel with US implementation in `README.md`.
+- T009 can proceed in parallel with US implementation; documentation review after T010.
 - US1 implementation and US2 implementation are separately scoped but both touch `modulo_vendas.py`; run sequentially if changing that file to avoid conflicts.
 
 ## Parallel Example: User Stories
 
 ```text
-Task: T003 — add CSV input tests in tests/test_modulo_vendas.py
-Task: T005 — add export tests in tests/test_modulo_vendas.py (coordinate to avoid overlapping edits)
+Task: T003 — write CSV input tests first in tests/test_modulo_vendas.py; confirm red
+Task: T005/T006 — write export success/failure tests first in tests/test_modulo_vendas.py; confirm red
 Task: T009 — document I/O behavior in README.md
 ```
 
@@ -109,4 +109,4 @@ Task: T009 — document I/O behavior in README.md
 
 ### Incremental Delivery
 
-US1 and US2 each provide separately verifiable I/O behavior. Deliver US1 first as MVP, then US2, then documentation and full-pipeline validation.
+US1 and US2 each provide separately verifiable I/O behavior. Deliver US1 first as MVP, then US2, then documentation and full-pipeline validation. For every changed behavior: tests first → confirm red → minimum implementation → confirm green → refactor.

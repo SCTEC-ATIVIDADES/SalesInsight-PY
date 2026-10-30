@@ -16,13 +16,13 @@ RF07 formalizes reusable CSV loading and JSON/CSV export for the existing sales 
 
 **Storage**: Local UTF-8 CSV input and generated files under `outputs/`.
 
-**Testing**: pytest, primarily `tests/test_modulo_vendas.py`; follow Red-Green-Refactor.
+**Testing**: pytest, primarily `tests/test_modulo_vendas.py`; each behavior change follows Red-Green-Refactor with recorded failing-first and passing-after runs. Final gate runs full pytest suite and `python main.py` locally and through Docker Compose.
 
 **Target Platform**: Linux, macOS, and Windows with Python 3.11+; existing Docker Compose environment.
 
 **Project Type**: Sales-processing CLI pipeline (`modulo_vendas.py` library functions, `main.py` orchestration).
 
-**Performance Goals**: Load and export the current dataset (approximately 151 records) without unnecessary repeated passes; no measurable delay for normal local use.
+**Performance Goals**: Process current dataset (approximately 151 records) in a single CSV read and category-output pass; no benchmark or latency gate required.
 
 **Constraints**: Read CSV as UTF-8 with `csv.DictReader`; export via native `csv` and `json`; preserve paths `outputs/estatisticas.json` and `outputs/metricas_resumo.csv`; write JSON top-level keys `metricas_gerais` and `clientes`; write category CSV columns `Categoria, Receita Total` with rows from `metricas["por_categoria"]`; create output directory automatically; preserve non-ASCII text; report expected I/O failures clearly. No new dependencies.
 
@@ -32,15 +32,15 @@ RF07 formalizes reusable CSV loading and JSON/CSV export for the existing sales 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Pre-Research | Post-Design | Evidence |
+| Principle | Pre-Research | Post-Design | Evidence / Scope |
 |---|---|---|---|
-| I. Modularization | PASS | PASS | Reuse `modulo_vendas.py` functions; `main.py` remains orchestration-only. |
-| II. Explicit processing | PASS | PASS | Standard-library CSV/JSON operations and explicit record/metric handling. |
-| III. TDD | PASS | PASS | Tests in `tests/test_modulo_vendas.py` precede changes; verify red/green/refactor. |
-| IV. Data quality and errors | PASS | PASS | UTF-8 handling and controlled filesystem failure behavior validated; cleaning remains downstream. |
-| V. Docker and outputs | PASS | PASS | Existing output filenames retained; RF07 JSON/CSV schemas documented and validated locally and in Docker. |
+| I. Modularization | PASS | PASS | I/O remains in reusable functions in `modulo_vendas.py`; `main.py` only orchestrates under main guard. New/changed functions retain concise docstrings and explicit typed signatures. |
+| II. Explicit processing | PASS | PASS | CSV/JSON use Python standard library; no opaque processing or new dependencies. |
+| III. TDD | PASS | PASS | T003/T005/T006 write tests first; each test task requires a failing run before implementation, then green run before refactor. Error paths included. |
+| IV. Data quality and errors | PASS (scoped) | PASS (scoped) | This feature tests file-format and filesystem failures, reporting without false success. Sales validation, cleaning, rejection counts, and malformed record handling remain owned by existing downstream cleaning feature and are not claimed as covered here. |
+| V. Docker and outputs | PASS | PASS | Local and Docker gates each run tests plus `python main.py`; verify JSON/CSV artifacts. README documents objective, prerequisites/setup, Docker, TDD, CSV rationale, output structure, concepts, and limitations. |
 
-No gate violations; no complexity exceptions required.
+No feature-scope gate violations; no complexity exceptions required.
 
 ## Project Structure
 
@@ -72,4 +72,4 @@ outputs/
 
 ## Complexity Tracking
 
-No constitution violations.
+No constitution violations. Feature scope excludes sales-data validation/rejection logic, which remains owned by downstream cleaning; plan claims only file-format, filesystem-error, and export-contract coverage.

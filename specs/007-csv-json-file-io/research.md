@@ -14,12 +14,12 @@
 
 ## Errors and empty input
 
-- **Decision**: Preserve controlled loader behavior for expected filesystem errors (clear message and empty result); ensure tests cover empty/header-only input, unreadable/missing paths, and UTF-8 text. Let JSON serialization errors remain visible to the pipeline's normal error handling rather than silently emitting partial success.
-- **Rationale**: Consistent with current API and constitution's resilient I/O principle. Empty list is existing behavior for failed load, although it conflates missing input with valid empty input; changing that contract is outside RF07 without a specified caller migration.
+- **Decision**: Preserve controlled loader behavior for expected filesystem errors (clear message and empty result); test empty/header-only input, unreadable/missing paths, multi-row mapping, and UTF-8 round-trip. Exporter must propagate write/serialization errors and print success only after both outputs complete; pipeline catches and reports export errors without traceback. Do not suppress serialization failures or claim partial export success.
+- **Rationale**: Preserves current loader API and meets RF07 plus constitution's resilient I/O principle. Empty list remains existing loader behavior for failed loads; changing it is outside RF07.
 - **Alternatives considered**: Raise all I/O errors to distinguish absence from empty data; rejected for compatibility with existing pipeline and tests.
 
 ## Scope resolution
 
-- **Decision**: RF07 supersedes the prior generic CSV and nested JSON payload schemas for these two existing output files. Preserve filenames, emit customer results as the explicit `clientes` JSON key, and write the category-specific CSV required by RF07.
-- **Rationale**: The supplied RF07 definition explicitly specifies JSON keys, CSV columns, and category source; implementation artifacts must match that contract.
-- **Alternatives considered**: Keeping the generic metrics CSV and nested customer segmentation would not satisfy RF07.
+- **Decision**: RF07 supersedes prior generic CSV and nested JSON payload schemas for these output files. Preserve filenames; emit `metricas_gerais` and `clientes` as separate top-level JSON keys; write category CSV required by RF07. Keep sales-record cleaning/validation downstream; this feature tests file parsing/serialization and I/O failures only.
+- **Rationale**: Supplied RF07 defines exact keys, columns, and category source. Constitution's data-cleaning/rejection rules belong to existing downstream cleaning feature, not duplicated in this file-I/O change.
+- **Alternatives considered**: Keeping generic CSV/nested customer schema fails RF07; duplicating cleaning rules here duplicates ownership.
