@@ -26,7 +26,7 @@ Add reusable customer spending segmentation to `modulo_vendas.py`, grouping clea
 
 **Constraints**: Input has valid, trimmed `cliente` and finite `receita_total`; derived `receita_total` is already rounded per sale to two decimal places. Sum individual sale amounts exactly in decimal form before classification; output `total_gasto` rounded to two decimal places. Threshold boundaries inclusive for Prata. Preserve existing export formats, JSON wrapper `metricas_gerais`, and CSV columns `Métrica, Valor`; add a segmentation key/row without changing existing metrics. No new external interface.
 
-**Scale/Scope**: One reusable segmentation function, pipeline wiring and export inclusion, focused tests; no schema or storage changes.
+**Scale/Scope**: One reusable segmentation function, pipeline wiring, existing CSV/JSON export inclusion, README documentation, focused tests, and local/Docker validation; no schema or storage changes.
 
 ## Constitution Check
 
@@ -38,7 +38,7 @@ Add reusable customer spending segmentation to `modulo_vendas.py`, grouping clea
 | II. Explicit processing | PASS | PASS | Explicit loops and dictionaries make grouping and thresholds auditable. |
 | III. TDD | PASS | PASS | Tests in `tests/test_modulo_vendas.py` written first; Red-Green-Refactor required. |
 | IV. Data quality | PASS | PASS | Function consumes already cleaned/derived records; existing cleaning handles invalid input. |
-| V. Docker and outputs | PASS | PASS | Preserve output schemas and verify local/Docker pipeline. |
+| V. Docker and outputs | PASS | PASS | Preserve output schemas; verify local and Docker runs; document segmentation and reports in `README.md`. |
 
 No constitution violations; no complexity exceptions.
 
@@ -47,11 +47,13 @@ No constitution violations; no complexity exceptions.
 ### Documentation (this feature)
 
 ```text
+README.md
 specs/006-client-spending-segmentation/
 ├── plan.md
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
+├── tasks.md
 ├── spec.md
 └── checklists/requirements.md
 ```

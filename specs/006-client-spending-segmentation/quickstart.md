@@ -25,6 +25,15 @@ Execute pipeline no ambiente do projeto:
 
 Resultado esperado: fluxo valida e enriquece vendas, calcula métricas e inclui mapa de segmentação de clientes nos arquivos `outputs/estatisticas.json` e `outputs/metricas_resumo.csv`. JSON mantém envelope `metricas_gerais`; CSV mantém cabeçalho `Métrica, Valor`.
 
+## Validação via Docker Compose
+
+```sh
+docker compose run --rm app pytest -v
+docker compose up --build
+```
+
+Resultado esperado: suíte passa e pipeline gera ambos os relatórios com segmentação, sem erro.
+
 Para cenário controlado, fornecer ao pipeline vendas válidas cujos totais por cliente sejam abaixo de R$ 3.000, exatamente R$ 3.000, exatamente R$ 8.000 e acima de R$ 8.000. Resultado esperado: respectivamente `Bronze`, `Prata`, `Prata` e `Ouro`; compras repetidas do mesmo cliente devem ser somadas antes da classificação.
 
 Modelo de campos: [data-model.md](./data-model.md). Critérios completos: [spec.md](./spec.md).

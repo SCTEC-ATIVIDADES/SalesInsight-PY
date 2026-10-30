@@ -15,6 +15,22 @@ Pipeline completo de ciência de dados em Python para geração, ingestão, limp
 - `tests/test_modulo_vendas.py`: Suíte automatizada de testes unitários com `pytest`.
 
 
+## Segmentação de clientes por gasto
+
+O pipeline soma `receita_total` por cliente e classifica: Bronze abaixo de R$ 3.000; Prata de R$ 3.000 a R$ 8.000, inclusive; Ouro acima de R$ 8.000. Totais e segmentos aparecem nos relatórios CSV e JSON existentes.
+
+## Conceitos e decisões
+
+O pipeline lê CSV com `csv.DictReader`, mantendo cabeçalhos como chaves e cada venda como dicionário. A segmentação usa agregação explícita por cliente e valores `Decimal`, classificando o total antes do arredondamento de exibição.
+
+## Testes e limitações
+
+Desenvolvimento segue TDD: escrever teste, confirmar falha, implementar e refatorar; suíte fica em `tests/test_modulo_vendas.py`. Segmentação pressupõe dados previamente limpos, com `cliente` válido e `receita_total` finita; rejeição de dados ocorre na limpeza anterior. Execute localmente com `pytest -v` ou via Compose com `docker compose run --rm app pytest -v`.
+
+## Saídas
+
+`outputs/estatisticas.json` mantém envelope `metricas_gerais`; `outputs/metricas_resumo.csv` mantém colunas `Métrica, Valor`. Ambos incluem `segmentacao_clientes` junto das métricas existentes.
+
 ## Execução com Docker Compose (Recomendado)
 
 ### Executar o pipeline principal

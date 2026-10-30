@@ -264,6 +264,27 @@ def calcular_metricas(dados: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def segmentar_clientes_por_gasto(dados: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Agrupa receita por cliente e classifica o gasto acumulado."""
+    totais: dict[str, Decimal] = {}
+    for registro in dados:
+        cliente = registro["cliente"]
+        totais[cliente] = totais.get(cliente, Decimal(0)) + Decimal(
+            str(registro["receita_total"])
+        )
+
+    resultado: dict[str, dict[str, Any]] = {}
+    for cliente, total in totais.items():
+        if total < 3000:
+            segmento = "Bronze"
+        elif total <= 8000:
+            segmento = "Prata"
+        else:
+            segmento = "Ouro"
+        resultado[cliente] = {"total_gasto": float(round(total, 2)), "segmento": segmento}
+    return resultado
+
+
 def exportar_resultados(
     metricas: dict[str, Any], pasta_saida: str | os.PathLike[str] = "outputs"
 ) -> None:

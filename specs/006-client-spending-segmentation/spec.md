@@ -63,4 +63,4 @@ Como analista de vendas, quero ver o gasto total e segmento de cada cliente para
 - A identidade do cliente e a receita de cada compra já estão presentes e válidas nos registros recebidos.
 - A classificação usa gasto total acumulado antes de arredondar o valor exibido; as entradas financeiras válidas têm precisão adequada para a regra de negócio.
 - Os intervalos são inclusivos em R$ 3.000 e R$ 8.000 para Prata, conforme tabela e exemplo fornecidos.
-- Esta funcionalidade calcula e retorna a segmentação; exportação ou apresentação em relatório não foi especificada e fica fora do escopo.
+- A segmentação deve ser incluída no fluxo atual de métricas e exportada pelos relatórios existentes; criação de novos formatos de relatório fica fora do escopo.
