@@ -954,6 +954,30 @@ def test_main_reporta_falha_de_exportacao_sem_traceback(
     assert "[OK]" not in saida
 
 
+@pytest.mark.parametrize(("sucesso", "codigo"), [(True, 0), (False, 1)])
+def test_main_executado_como_programa_roda_pipeline_uma_vez(
+    sucesso: bool, codigo: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    chamadas: list[str] = []
+    dados = [{"cliente": "Ana", "receita_total": 10.0}]
+    monkeypatch.setattr("os.path.exists", lambda _: True)
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
+    monkeypatch.setattr(mv, "inspecionar_dados", lambda _: None)
+    monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
+    monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {"total_geral": 10.0, "por_categoria": {}})
+    monkeypatch.setattr(mv, "segmentar_clientes_por_gasto", lambda _: {})
+    monkeypatch.setattr(mv, "exportar_resultados", lambda *_: chamadas.append("exportar"))
+    if not sucesso:
+        monkeypatch.setattr(mv, "limpar_dados", lambda *_: _falhar_main("processar", "processar"))
+
+    with pytest.raises(SystemExit) as erro:
+        runpy.run_path("main.py", run_name="__main__")
+
+    assert erro.value.code == codigo
+    assert chamadas == (["exportar"] if sucesso else [])
+
+
 def test_main_import_nao_executa_pipeline(
     capsys: pytest.CaptureFixture[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
