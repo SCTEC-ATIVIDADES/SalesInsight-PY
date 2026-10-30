@@ -954,10 +954,15 @@ def test_main_reporta_falha_de_exportacao_sem_traceback(
     assert "[OK]" not in saida
 
 
-def test_main_import_nao_executa_pipeline(capsys: pytest.CaptureFixture[str]) -> None:
-    runpy.run_path("main.py", run_name="rf08_import_test")
+def test_main_import_nao_executa_pipeline(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    caminho_main = Path(__file__).resolve().parents[1] / "main.py"
+    monkeypatch.chdir(tmp_path)
+    runpy.run_path(str(caminho_main), run_name="rf08_import_test")
 
     assert capsys.readouterr().out == ""
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_main_gera_apenas_entrada_ausente_e_executa_etapas_em_ordem(
@@ -1016,7 +1021,8 @@ def test_main_exibe_total_e_top_cinco_clientes(
     assert contexto["executar_pipeline"]() is True
     saida = capsys.readouterr().out
     assert "21.0" in saida
-    assert "Cliente 6" in saida and "Cliente 2" in saida
+    posicoes = [saida.index(f"Cliente {indice}:") for indice in range(6, 1, -1)]
+    assert posicoes == sorted(posicoes)
     assert "Cliente 1" not in saida
 
 
