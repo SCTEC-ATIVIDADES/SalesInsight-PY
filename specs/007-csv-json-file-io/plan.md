@@ -1,8 +1,8 @@
 # Implementation Plan: CSV and JSON File I/O
 
-**Branch**: `008-csv-json-file-io` | **Date**: 2026-10-29 | **Spec**: [spec.md](./spec.md)
+**Branch**: `007-csv-json-file-io` | **Date**: 2026-10-29 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `/specs/008-csv-json-file-io/spec.md`
+**Input**: Feature specification from `/specs/007-csv-json-file-io/spec.md`
 
 ## Summary
 
@@ -47,7 +47,7 @@ No gate violations; no complexity exceptions required.
 ### Documentation (this feature)
 
 ```text
-specs/008-csv-json-file-io/
+specs/007-csv-json-file-io/
 ├── plan.md
 ├── research.md
 ├── data-model.md

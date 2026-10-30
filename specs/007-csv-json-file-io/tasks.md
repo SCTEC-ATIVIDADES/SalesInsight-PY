@@ -1,6 +1,6 @@
 # Tasks: CSV and JSON File I/O
 
-**Input**: Design documents from `/specs/008-csv-json-file-io/`
+**Input**: Design documents from `/specs/007-csv-json-file-io/`
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, quickstart.md
 
