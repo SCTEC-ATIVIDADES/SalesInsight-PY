@@ -12,7 +12,7 @@
 
 **Purpose**: Confirm existing test and execution commands; no new project setup or dependencies required.
 
-- [X] T001 Verify pytest and local/Docker entry-point commands in `requirements.txt`, `README.md`, and `docker-compose.yml`
+- [X] T001 Verify pytest and local/Docker entry-point commands in `requirements.txt`, `README.md`, and `docker-compose.specify.yml`
 
 ---
 
@@ -38,7 +38,7 @@
 ### Implementation for User Story 1
 
 - [X] T005 [US1] Update `main.py` to orchestrate existing generator and `modulo_vendas.py` stages, display total revenue and up to five highest-spend customers, and invoke RF07 export
-- [X] T006 [US1] Handle generator, unreadable/empty input, processing, and export failures in `main.py` without traceback or false success message
+- [ ] T006 [US1] Return a failure status for generator, unreadable/empty input, processing, and export failures in `main.py` (currently errors are printed but process exits successfully)
 
 **Checkpoint**: US1 independently runs full pipeline and preserves established exports.
 
@@ -67,7 +67,7 @@
 **Purpose**: Verify full behavior and run documented quality gates.
 
 - [X] T009 [P] Update RF08 run and expected-output instructions in `README.md`
-- [X] T010 Run `docker compose run --rm app pytest -q` (63 passed), `docker compose run --rm app python main.py` (success), and validate JSON/CSV schemas in Docker. Host pytest/main unavailable: pandas absent.
+- [ ] T010 Verify full tests, direct execution, and RF07 schemas per quickstart (prior run recorded: 63 Docker tests passed, pipeline succeeded; host unavailable: pandas absent)
 
 ---
 
@@ -113,3 +113,8 @@ Task: Review README.md run/output instructions for RF08 documentation update
 ### Incremental Delivery
 
 US1 delivers usable full pipeline and outputs. US2 adds import safety without changing business behavior. Polish verifies docs and both runtime environments.
+
+## Phase 6: Convergence
+
+- [ ] T011 Return nonzero failure status from `executar_pipeline()` for generator, input, processing, and export failures per T006 (partial)
+- [ ] T012 Complete host `pytest -q` and `python main.py` gates in an environment with project dependencies installed; confirm generated RF07 outputs per T010 and Constitution V (partial)
