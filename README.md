@@ -10,7 +10,7 @@ Pipeline completo de ciência de dados em Python para geração, ingestão, limp
 
 - `gerador_dados.py`: Módulo independente responsável pela geração determinística do dataset sintético (`gerar_dataset_sintetico`) com dados realistas em português (`Faker('pt_BR')` + `random`) e ruídos controlados para validação de limpeza.
 - `modulo_vendas.py`: Funções reutilizáveis do pipeline (`carregar_csv` via `csv.DictReader`, inspeção, limpeza, transformações, métricas, segmentação e exportação via módulos nativos `csv`/`json`).
-- `main.py`: Ponto de entrada que orquestra geração, leitura, processamento e exportação, sem regras de negócio.
+- `main.py`: Ponto de entrada que orquestra geração, leitura, processamento e exportação, sem regras de negócio. Importá-lo não inicia pipeline; execução direta exibe receita total e até cinco clientes de maior gasto.
 - `vendas.csv`: Dataset de vendas gerado com `>= 100` registros (150 registros base + 1 duplicata deliberada = 151 linhas de dados).
 - `tests/test_modulo_vendas.py`: Suíte automatizada de testes unitários com `pytest`.
 

@@ -910,7 +910,7 @@ def test_main_envia_clientes_separados_ao_exportador(monkeypatch: pytest.MonkeyP
     monkeypatch.setattr(mv, "inspecionar_dados", lambda _: {})
     monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
     monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
-    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {})
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {"total_geral": 3000.0})
     monkeypatch.setattr(
         mv,
         "exportar_resultados",
@@ -935,7 +935,7 @@ def test_main_reporta_falha_de_exportacao_sem_traceback(
     monkeypatch.setattr(mv, "inspecionar_dados", lambda _: {})
     monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
     monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
-    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {"por_categoria": {}})
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {"total_geral": 10.0, "por_categoria": {}})
 
     def falhar_exportacao(*args: object) -> None:
         raise OSError("disco sem espaço")
@@ -949,6 +949,98 @@ def test_main_reporta_falha_de_exportacao_sem_traceback(
     assert "[ERRO] Falha ao exportar resultados: disco sem espaço" in saida
     assert "Traceback" not in saida
     assert "[OK]" not in saida
+
+
+def test_main_import_nao_executa_pipeline(capsys: pytest.CaptureFixture[str]) -> None:
+    runpy.run_path("main.py", run_name="rf08_import_test")
+
+    assert capsys.readouterr().out == ""
+
+
+def test_main_gera_apenas_entrada_ausente_e_executa_etapas_em_ordem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    chamadas: list[str] = []
+    dados = [{"cliente": "Ana", "receita_total": 10.0}]
+    monkeypatch.setattr("os.path.exists", lambda _: False)
+    monkeypatch.setattr(gd, "gerar_dataset_sintetico", lambda *args, **kwargs: chamadas.append("gerar"))
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: chamadas.append("carregar") or dados)
+    monkeypatch.setattr(mv, "inspecionar_dados", lambda _: chamadas.append("inspecionar"))
+    monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: chamadas.append("limpar") or registros)
+    monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: chamadas.append("transformar") or registros)
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: chamadas.append("metricas") or {"total_geral": 10.0, "por_categoria": {}})
+    monkeypatch.setattr(mv, "segmentar_clientes_por_gasto", lambda _: chamadas.append("segmentar") or {"Ana": {"total_gasto": 10.0, "segmento": "Bronze"}})
+    monkeypatch.setattr(mv, "exportar_resultados", lambda *_: chamadas.append("exportar"))
+
+    runpy.run_path("main.py", run_name="__main__")
+
+    assert chamadas == ["gerar", "carregar", "inspecionar", "limpar", "transformar", "metricas", "segmentar", "exportar"]
+
+
+def test_main_reutiliza_entrada_existente(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    chamadas: list[str] = []
+    monkeypatch.setattr("os.path.exists", lambda _: True)
+    monkeypatch.setattr(gd, "gerar_dataset_sintetico", lambda *args, **kwargs: chamadas.append("gerar"))
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: [])
+
+    runpy.run_path("main.py", run_name="__main__")
+
+    assert "gerar" not in chamadas
+
+
+def test_main_exibe_total_e_top_cinco_clientes(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    clientes = {
+        f"Cliente {indice}": {"total_gasto": float(indice), "segmento": "Bronze"}
+        for indice in range(1, 7)
+    }
+    monkeypatch.setattr("os.path.exists", lambda _: True)
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: [{"cliente": "Ana", "receita_total": 10.0}])
+    monkeypatch.setattr(mv, "inspecionar_dados", lambda _: None)
+    monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
+    monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {"total_geral": 21.0, "por_categoria": {}})
+    monkeypatch.setattr(mv, "segmentar_clientes_por_gasto", lambda _: clientes)
+    monkeypatch.setattr(mv, "exportar_resultados", lambda *_: None)
+
+    runpy.run_path("main.py", run_name="__main__")
+
+    saida = capsys.readouterr().out
+    assert "21.0" in saida
+    assert "Cliente 6" in saida and "Cliente 2" in saida
+    assert "Cliente 1" not in saida
+
+
+@pytest.mark.parametrize("falha", ["gerar", "ler", "vazio", "processar", "exportar"])
+def test_main_reporta_falhas_sem_traceback_ou_sucesso(
+    falha: str,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.setattr("os.path.exists", lambda _: falha not in {"gerar", "vazio"})
+    monkeypatch.setattr(gd, "gerar_dataset_sintetico", lambda *_args, **_kwargs: _falhar_main("gerar", falha))
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: _falhar_main("ler", falha) or [])
+    monkeypatch.setattr(mv, "inspecionar_dados", lambda _: None)
+    monkeypatch.setattr(mv, "limpar_dados", lambda *_: _falhar_main("processar", falha) or [])
+    monkeypatch.setattr(mv, "criar_campos_derivados", lambda dados: dados)
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {"total_geral": 0, "por_categoria": {}})
+    monkeypatch.setattr(mv, "segmentar_clientes_por_gasto", lambda _: {})
+    monkeypatch.setattr(mv, "exportar_resultados", lambda *_: _falhar_main("exportar", falha))
+
+    runpy.run_path("main.py", run_name="__main__")
+
+    saida = capsys.readouterr().out
+    assert f"[ERRO]" in saida
+    assert "Traceback" not in saida
+    assert "[OK]" not in saida
+
+
+def _falhar_main(etapa: str, falha: str) -> None:
+    if etapa == falha:
+        raise OSError(f"falha {etapa}")
 
 
 def test_exportar_resultados_escreve_schemas_rf07_em_utf8_e_substitui_arquivos(

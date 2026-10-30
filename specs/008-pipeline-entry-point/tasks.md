@@ -12,7 +12,7 @@
 
 **Purpose**: Confirm existing test and execution commands; no new project setup or dependencies required.
 
-- [ ] T001 Verify pytest and local/Docker entry-point commands in `requirements.txt`, `README.md`, and `docker-compose.yml`
+- [X] T001 Verify pytest and local/Docker entry-point commands in `requirements.txt`, `README.md`, and `docker-compose.yml`
 
 ---
 
@@ -20,7 +20,7 @@
 
 **Purpose**: Confirm shared pipeline contracts before story work.
 
-- [ ] T002 [P] Verify RF01–RF07 generator, processing, segmentation, and export interfaces in `gerador_dados.py`, `modulo_vendas.py`, and `specs/007-csv-json-file-io/spec.md`
+- [X] T002 [P] Verify RF01–RF07 generator, processing, segmentation, and export interfaces in `gerador_dados.py`, `modulo_vendas.py`, and `specs/007-csv-json-file-io/spec.md`
 
 ---
 
@@ -32,13 +32,13 @@
 
 ### Tests for User Story 1
 
-- [ ] T003 [US1] Add failing `main.py` integration tests for missing-input generation, existing-input reuse, and pipeline stage order in `tests/test_modulo_vendas.py`
-- [ ] T004 [US1] Add failing `main.py` output and failure tests for executive summary, highest-spend top-five selection, export call, and generator, unreadable/empty input, processing, and export failures with no success report in `tests/test_modulo_vendas.py`
+- [X] T003 [US1] Add failing `main.py` integration tests for missing-input generation, existing-input reuse, and pipeline stage order in `tests/test_modulo_vendas.py`
+- [X] T004 [US1] Add failing `main.py` output and failure tests for executive summary, highest-spend top-five selection, export call, and generator, unreadable/empty input, processing, and export failures with no success report in `tests/test_modulo_vendas.py`
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Update `main.py` to orchestrate existing generator and `modulo_vendas.py` stages, display total revenue and up to five highest-spend customers, and invoke RF07 export
-- [ ] T006 [US1] Handle generator, unreadable/empty input, processing, and export failures in `main.py` without traceback or false success message
+- [X] T005 [US1] Update `main.py` to orchestrate existing generator and `modulo_vendas.py` stages, display total revenue and up to five highest-spend customers, and invoke RF07 export
+- [X] T006 [US1] Handle generator, unreadable/empty input, processing, and export failures in `main.py` without traceback or false success message
 
 **Checkpoint**: US1 independently runs full pipeline and preserves established exports.
 
@@ -52,11 +52,11 @@
 
 ### Tests for User Story 2
 
-- [ ] T007 [P] [US2] Add failing import-safety and exactly-once direct-execution tests for `main.py` in `tests/test_modulo_vendas.py`
+- [X] T007 [P] [US2] Add failing import-safety and exactly-once direct-execution tests for `main.py` in `tests/test_modulo_vendas.py`
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Keep pipeline invocation behind `if __name__ == "__main__":` in `main.py` and satisfy import-safety tests
+- [X] T008 [US2] Keep pipeline invocation behind `if __name__ == "__main__":` in `main.py` and satisfy import-safety tests
 
 **Checkpoint**: Both stories independently pass; import never launches work.
 
@@ -66,8 +66,8 @@
 
 **Purpose**: Verify full behavior and run documented quality gates.
 
-- [ ] T009 [P] Update RF08 run and expected-output instructions in `README.md`
-- [ ] T010 Run `pytest -q`, `python main.py`, and Docker Compose pytest/pipeline commands; verify JSON and CSV schemas per `specs/008-pipeline-entry-point/quickstart.md`
+- [X] T009 [P] Update RF08 run and expected-output instructions in `README.md`
+- [X] T010 Run `docker compose run --rm app pytest -q` (63 passed), `docker compose run --rm app python main.py` (success), and validate JSON/CSV schemas in Docker. Host pytest/main unavailable: pandas absent.
 
 ---
 
