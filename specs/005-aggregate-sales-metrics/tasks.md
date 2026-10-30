@@ -71,6 +71,13 @@
 - [X] T009 [P] Add a deterministic 10,000-record test in `tests/test_modulo_vendas.py`: record `i` has `categoria=f'C{i % 10}'`, `regiao=f'R{i % 4}'`, `receita_total=1.00`; assert `total_geral == 10000.0`, each of 10 categories totals `1000.0`, each of 4 regions totals `2500.0`.
 - [X] T010 Run focused suite, full pytest suite, `python main.py`, and Docker validations specified in `specs/005-aggregate-sales-metrics/quickstart.md`.
 
+## Phase 7: Precision Hardening
+
+**Purpose**: Prevent binary floating-point drift in aggregation while preserving specified per-addition rounding.
+
+- [X] T011 [US1] Add adversarial large-count and fractional-cent rounding tests in `tests/test_modulo_vendas.py` to lock exact accumulation behavior.
+- [X] T012 [US1] Use exact decimal accumulation in `calcular_metricas` in `modulo_vendas.py`, retaining Python `round` semantics and float output shape.
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -90,6 +97,7 @@
 - T001 and T003 test authoring can be drafted independently, but implementation is sequential because stories extend same function and module.
 - T005 and T006 test work may be parallelized if coordinated to avoid concurrent edits to `tests/test_modulo_vendas.py`; otherwise execute sequentially.
 - T009 may run after implementation and does not alter source code.
+- T011 test authoring precedes T012 implementation; both modify the existing test/module files sequentially.
 
 ## Parallel Example: User Story 1
 

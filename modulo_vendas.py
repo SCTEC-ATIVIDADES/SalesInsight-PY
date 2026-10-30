@@ -2,6 +2,7 @@
 
 import csv
 from datetime import datetime
+from decimal import Decimal
 import json
 import math
 import os
@@ -242,24 +243,24 @@ def criar_campos_derivados(dados: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def calcular_metricas(dados: list[dict[str, Any]]) -> dict[str, Any]:
     """Calcula totais de receita por categoria, região e geral."""
-    total_geral = 0.0
-    por_categoria: dict[str, float] = {}
-    por_regiao: dict[str, float] = {}
+    total_geral = Decimal(0)
+    por_categoria: dict[str, Decimal] = {}
+    por_regiao: dict[str, Decimal] = {}
 
     for registro in dados:
-        receita_total = registro["receita_total"]
+        receita_total = Decimal(str(registro["receita_total"]))
         categoria = registro.get("categoria")
         regiao = registro.get("regiao")
         if categoria is not None:
-            por_categoria[categoria] = round(por_categoria.get(categoria, 0.0) + receita_total, 2)
+            por_categoria[categoria] = round(por_categoria.get(categoria, Decimal(0)) + receita_total, 2)
         if regiao is not None:
-            por_regiao[regiao] = round(por_regiao.get(regiao, 0.0) + receita_total, 2)
+            por_regiao[regiao] = round(por_regiao.get(regiao, Decimal(0)) + receita_total, 2)
         total_geral += receita_total
 
     return {
-        "total_geral": round(total_geral, 2),
-        "por_categoria": por_categoria,
-        "por_regiao": por_regiao,
+        "total_geral": float(round(total_geral, 2)),
+        "por_categoria": {chave: float(valor) for chave, valor in por_categoria.items()},
+        "por_regiao": {chave: float(valor) for chave, valor in por_regiao.items()},
     }
 
 

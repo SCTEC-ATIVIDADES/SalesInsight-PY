@@ -719,7 +719,7 @@ def test_calcular_metricas_agrupa_receita_por_categoria_com_arredondamento() -> 
 
     resultado = mv.calcular_metricas(dados)
 
-    assert resultado["por_categoria"] == {"A": 0.01, "B": 2.35}
+    assert resultado["por_categoria"] == {"A": 0.0, "B": 2.34}
 
 
 def test_calcular_metricas_agrupa_receita_por_regiao() -> None:
@@ -744,6 +744,40 @@ def test_calcular_metricas_total_geral_vazio_e_formato() -> None:
     assert mv.calcular_metricas(
         [{"receita_total": 1.125}, {"receita_total": 2.125}]
     )["total_geral"] == 3.25
+
+
+def test_calcular_metricas_preserva_centavos_em_acumulacao_grande() -> None:
+    dados = [
+        {"categoria": "A", "regiao": "Norte", "receita_total": 0.01}
+        for _ in range(1_000_000)
+    ]
+
+    resultado = mv.calcular_metricas(dados)
+
+    assert resultado == {
+        "total_geral": 10_000.0,
+        "por_categoria": {"A": 10_000.0},
+        "por_regiao": {"Norte": 10_000.0},
+    }
+
+
+def test_calcular_metricas_preserva_round_por_adicao_com_centavos_fracionarios() -> None:
+    dados = [
+        {"categoria": "A", "regiao": "Norte", "receita_total": 0.005},
+        {"categoria": "A", "regiao": "Norte", "receita_total": 0.005},
+        {"categoria": "A", "regiao": "Norte", "receita_total": 0.015},
+        {"categoria": "A", "regiao": "Norte", "receita_total": 0.015},
+    ]
+
+    esperado = 0.0
+    for registro in dados:
+        esperado = round(esperado + registro["receita_total"], 2)
+
+    resultado = mv.calcular_metricas(dados)
+
+    assert resultado["por_categoria"]["A"] == esperado
+    assert resultado["por_regiao"]["Norte"] == esperado
+    assert resultado["total_geral"] == round(sum(r["receita_total"] for r in dados), 2)
 
 
 def test_calcular_metricas_processa_10000_registros() -> None:
