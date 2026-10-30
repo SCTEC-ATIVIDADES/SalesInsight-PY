@@ -798,7 +798,7 @@ def test_calcular_metricas_processa_10000_registros() -> None:
 
 
 def test_main_envia_metricas_agregadas_ao_exportador(monkeypatch: pytest.MonkeyPatch) -> None:
-    dados = [{"receita_total": 10.0, "categoria": "A", "regiao": "Norte"}]
+    dados = [{"cliente": "Ana", "receita_total": 10.0, "categoria": "A", "regiao": "Norte"}]
     chamadas: dict[str, object] = {}
     monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
     monkeypatch.setattr(mv, "inspecionar_dados", lambda _: {})
@@ -821,6 +821,99 @@ def test_main_envia_metricas_agregadas_ao_exportador(monkeypatch: pytest.MonkeyP
     assert chamadas["total_geral"] == 10.0
     assert chamadas["por_categoria"] == {"A": 10.0}
     assert chamadas["por_regiao"] == {"Norte": 10.0}
+    assert chamadas["segmentacao_clientes"] == {
+        "Ana": {"total_gasto": 10.0, "segmento": "Bronze"}
+    }
+
+
+def test_segmentar_clientes_por_gasto_soma_e_classifica_com_limites() -> None:
+    dados = [
+        {"cliente": "Bronze", "receita_total": 2999.99},
+        {"cliente": "Prata 3k", "receita_total": 3000.0},
+        {"cliente": "Prata 8k", "receita_total": 8000.0},
+        {"cliente": "Ouro", "receita_total": 8000.01},
+        {"cliente": "Bronze", "receita_total": 0.01},
+    ]
+
+    assert mv.segmentar_clientes_por_gasto(dados) == {
+        "Bronze": {"total_gasto": 3000.0, "segmento": "Prata"},
+        "Prata 3k": {"total_gasto": 3000.0, "segmento": "Prata"},
+        "Prata 8k": {"total_gasto": 8000.0, "segmento": "Prata"},
+        "Ouro": {"total_gasto": 8000.01, "segmento": "Ouro"},
+    }
+
+
+def test_segmentar_clientes_por_gasto_arredonda_apenas_exibicao() -> None:
+    dados = [
+        {"cliente": "Ana", "receita_total": 2999.996},
+    ]
+
+    assert mv.segmentar_clientes_por_gasto(dados) == {
+        "Ana": {"total_gasto": 3000.0, "segmento": "Bronze"}
+    }
+
+
+def test_segmentar_clientes_por_gasto_vazio() -> None:
+    assert mv.segmentar_clientes_por_gasto([]) == {}
+
+
+def test_segmentar_clientes_por_gasto_bronze_compra_unica_e_total_negativo() -> None:
+    dados = [
+        {"cliente": "Bronze", "receita_total": 2999.99},
+        {"cliente": "Compra única", "receita_total": 3000.0},
+        {"cliente": "Negativo", "receita_total": -25.5},
+    ]
+
+    assert mv.segmentar_clientes_por_gasto(dados) == {
+        "Bronze": {"total_gasto": 2999.99, "segmento": "Bronze"},
+        "Compra única": {"total_gasto": 3000.0, "segmento": "Prata"},
+        "Negativo": {"total_gasto": -25.5, "segmento": "Bronze"},
+    }
+
+
+def test_segmentar_clientes_por_gasto_processa_10000_vendas() -> None:
+    dados = [
+        {"cliente": f"Cliente {i % 100}", "receita_total": 1.0}
+        for i in range(10_000)
+    ]
+
+    resultado = mv.segmentar_clientes_por_gasto(dados)
+
+    assert len(resultado) == 100
+    assert resultado["Cliente 0"] == {"total_gasto": 100.0, "segmento": "Bronze"}
+    assert resultado["Cliente 99"] == {"total_gasto": 100.0, "segmento": "Bronze"}
+
+
+def test_main_envia_segmentacao_ao_exportador(monkeypatch: pytest.MonkeyPatch) -> None:
+    dados = [{"cliente": "Ana", "receita_total": 3000.0}]
+    chamadas: dict[str, object] = {}
+    monkeypatch.setattr(mv, "carregar_csv", lambda _: dados)
+    monkeypatch.setattr(mv, "inspecionar_dados", lambda _: {})
+    monkeypatch.setattr(mv, "limpar_dados", lambda registros, _: registros)
+    monkeypatch.setattr(mv, "criar_campos_derivados", lambda registros: registros)
+    monkeypatch.setattr(mv, "calcular_metricas", lambda _: {})
+    monkeypatch.setattr(mv, "exportar_resultados", lambda metricas: chamadas.update(metricas))
+    monkeypatch.setattr("os.path.exists", lambda _: True)
+
+    runpy.run_path("main.py", run_name="__main__")
+
+    assert chamadas["segmentacao_clientes"] == {
+        "Ana": {"total_gasto": 3000.0, "segmento": "Prata"}
+    }
+
+
+def test_exportacao_preserva_segmentacao_em_json_e_csv(tmp_path: Path) -> None:
+    metricas = {"segmentacao_clientes": {"Ana": {"total_gasto": 3000.0, "segmento": "Prata"}}}
+    mv.exportar_resultados(metricas, pasta_saida=tmp_path)
+
+    assert json.loads((tmp_path / "estatisticas.json").read_text(encoding="utf-8")) == {
+        "metricas_gerais": metricas
+    }
+    with open(tmp_path / "metricas_resumo.csv", encoding="utf-8", newline="") as arquivo:
+        assert list(csv.reader(arquivo)) == [
+            ["Métrica", "Valor"],
+            ["segmentacao_clientes", '{"Ana": {"total_gasto": 3000.0, "segmento": "Prata"}}'],
+        ]
 
 
 def test_exportar_resultados_cria_arquivos_estruturados(tmp_path: Path) -> None:
