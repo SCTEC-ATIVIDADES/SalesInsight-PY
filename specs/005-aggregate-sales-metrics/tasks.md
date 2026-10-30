@@ -119,3 +119,8 @@ Task: Review expected category rounding cases against specs/005-aggregate-sales-
 - TDD tasks must fail before corresponding implementation.
 - Aggregation input comes from RF04 output; Python `round` (ties-to-even) applies after each grouped addition; grand total rounds once at end. Group totals need not reconcile exactly with grand total.
 - No external contract files apply to this internal CLI feature.
+
+## Phase 7: Convergence
+
+- [ ] T011 Replace float-based aggregate accumulators with exact cent-based arithmetic, preserving per-addition Python `round` semantics and required two-decimal outputs per SC-002 and plan O(n) decision (partial).
+- [ ] T012 Add adversarial precision tests for large input and fractional-cent intermediate values; verify grouped and grand totals against explicit Python `round` results in `tests/test_modulo_vendas.py` per SC-002 (partial).
