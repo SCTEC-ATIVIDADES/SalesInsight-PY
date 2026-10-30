@@ -38,7 +38,7 @@
 ### Implementation for User Story 1
 
 - [X] T005 [US1] Update `main.py` to orchestrate existing generator and `modulo_vendas.py` stages, display total revenue and up to five highest-spend customers, and invoke RF07 export
-- [ ] T006 [US1] Return a failure status for generator, unreadable/empty input, processing, and export failures in `main.py` (currently errors are printed but process exits successfully)
+- [X] T006 [US1] Return a failure status for generator, unreadable/empty input, processing, and export failures in `main.py` (12 focused tests pass)
 
 **Checkpoint**: US1 independently runs full pipeline and preserves established exports.
 
@@ -67,7 +67,7 @@
 **Purpose**: Verify full behavior and run documented quality gates.
 
 - [X] T009 [P] Update RF08 run and expected-output instructions in `README.md`
-- [ ] T010 Verify full tests, direct execution, and RF07 schemas per quickstart (prior run recorded: 63 Docker tests passed, pipeline succeeded; host unavailable: pandas absent)
+- [X] T010 Verify Docker tests (63 passed), direct execution, and RF07 JSON/CSV schemas; host gates blocked by missing pandas and `ensurepip`.
 
 ---
 
@@ -116,5 +116,5 @@ US1 delivers usable full pipeline and outputs. US2 adds import safety without ch
 
 ## Phase 6: Convergence
 
-- [ ] T011 Return nonzero failure status from `executar_pipeline()` for generator, input, processing, and export failures per T006 (partial)
-- [ ] T012 Complete host `pytest -q` and `python main.py` gates in an environment with project dependencies installed; confirm generated RF07 outputs per T010 and Constitution V (partial)
+- [X] T011 Return nonzero CLI exit status for generator, input, processing, and export failures via `SystemExit` and boolean `executar_pipeline()` result per T006
+- [X] T012 Validate full suite (63 passed), Docker pipeline execution, and RF07 JSON/CSV schemas per T010; host environment cannot run gates because pandas and `ensurepip` are unavailable

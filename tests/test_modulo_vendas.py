@@ -830,7 +830,8 @@ def test_main_envia_metricas_e_clientes_ao_exportador(monkeypatch: pytest.Monkey
     )
     monkeypatch.setattr("os.path.exists", lambda _: True)
 
-    runpy.run_path("main.py", run_name="__main__")
+    contexto = runpy.run_path("main.py", run_name="rf08_direct_test")
+    contexto["executar_pipeline"]()
 
     assert chamadas["metricas"] == {
         "registros_validos": 1,
@@ -918,7 +919,8 @@ def test_main_envia_clientes_separados_ao_exportador(monkeypatch: pytest.MonkeyP
     )
     monkeypatch.setattr("os.path.exists", lambda _: True)
 
-    runpy.run_path("main.py", run_name="__main__")
+    contexto = runpy.run_path("main.py", run_name="rf08_direct_test")
+    contexto["executar_pipeline"]()
 
     assert chamadas["clientes"] == {
         "Ana": {"total_gasto": 3000.0, "segmento": "Prata"}
@@ -943,8 +945,9 @@ def test_main_reporta_falha_de_exportacao_sem_traceback(
     monkeypatch.setattr(mv, "exportar_resultados", falhar_exportacao)
     monkeypatch.setattr("os.path.exists", lambda _: True)
 
-    runpy.run_path("main.py", run_name="__main__")
+    contexto = runpy.run_path("main.py", run_name="rf08_failure_test")
 
+    assert contexto["executar_pipeline"]() is False
     saida = capsys.readouterr().out
     assert "[ERRO] Falha ao exportar resultados: disco sem espaço" in saida
     assert "Traceback" not in saida
@@ -972,7 +975,8 @@ def test_main_gera_apenas_entrada_ausente_e_executa_etapas_em_ordem(
     monkeypatch.setattr(mv, "segmentar_clientes_por_gasto", lambda _: chamadas.append("segmentar") or {"Ana": {"total_gasto": 10.0, "segmento": "Bronze"}})
     monkeypatch.setattr(mv, "exportar_resultados", lambda *_: chamadas.append("exportar"))
 
-    runpy.run_path("main.py", run_name="__main__")
+    contexto = runpy.run_path("main.py", run_name="rf08_direct_test")
+    contexto["executar_pipeline"]()
 
     assert chamadas == ["gerar", "carregar", "inspecionar", "limpar", "transformar", "metricas", "segmentar", "exportar"]
 
@@ -985,7 +989,8 @@ def test_main_reutiliza_entrada_existente(
     monkeypatch.setattr(gd, "gerar_dataset_sintetico", lambda *args, **kwargs: chamadas.append("gerar"))
     monkeypatch.setattr(mv, "carregar_csv", lambda _: [])
 
-    runpy.run_path("main.py", run_name="__main__")
+    contexto = runpy.run_path("main.py", run_name="rf08_direct_test")
+    contexto["executar_pipeline"]()
 
     assert "gerar" not in chamadas
 
@@ -1006,8 +1011,9 @@ def test_main_exibe_total_e_top_cinco_clientes(
     monkeypatch.setattr(mv, "segmentar_clientes_por_gasto", lambda _: clientes)
     monkeypatch.setattr(mv, "exportar_resultados", lambda *_: None)
 
-    runpy.run_path("main.py", run_name="__main__")
+    contexto = runpy.run_path("main.py", run_name="rf08_success_test")
 
+    assert contexto["executar_pipeline"]() is True
     saida = capsys.readouterr().out
     assert "21.0" in saida
     assert "Cliente 6" in saida and "Cliente 2" in saida
@@ -1030,8 +1036,9 @@ def test_main_reporta_falhas_sem_traceback_ou_sucesso(
     monkeypatch.setattr(mv, "segmentar_clientes_por_gasto", lambda _: {})
     monkeypatch.setattr(mv, "exportar_resultados", lambda *_: _falhar_main("exportar", falha))
 
-    runpy.run_path("main.py", run_name="__main__")
+    contexto = runpy.run_path("main.py", run_name="rf08_failure_test")
 
+    assert contexto["executar_pipeline"]() is False
     saida = capsys.readouterr().out
     assert f"[ERRO]" in saida
     assert "Traceback" not in saida

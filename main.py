@@ -6,7 +6,7 @@ import gerador_dados as gd
 import modulo_vendas as mv
 
 
-def executar_pipeline() -> None:
+def executar_pipeline() -> bool:
     """Executa o fluxo de análise e exporta resultados, reportando falhas."""
     arquivo_dados = "vendas.csv"
 
@@ -43,9 +43,12 @@ def executar_pipeline() -> None:
             mv.exportar_resultados(metricas, clientes)
         except Exception as erro:
             print(f"[ERRO] Falha ao exportar resultados: {erro}")
+            return False
+        return True
     except Exception as erro:
         print(f"[ERRO] Falha ao executar pipeline: {erro}")
+        return False
 
 
 if __name__ == "__main__":
-    executar_pipeline()
+    raise SystemExit(0 if executar_pipeline() else 1)
